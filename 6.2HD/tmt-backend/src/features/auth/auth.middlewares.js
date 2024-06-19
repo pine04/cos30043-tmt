@@ -1,4 +1,10 @@
-app.post("/register", async (req, res, next) => {
+const createError = require("http-errors");
+
+const { hash, compare } = require("../../services/bcrypt");
+const { registrationSchema, loginSchema } = require("./auth.schemas");
+const { getUserByUsername, getUserByEmail, createUser, getUsers } = require("./auth.model");
+
+async function handleRegister(req, res, next) {
     const { error, value } = registrationSchema.validate(req.body);
 
     if (error) {
@@ -18,7 +24,7 @@ app.post("/register", async (req, res, next) => {
             return next(createError(400, `The email '${email}' is already used.`));
         }
 
-        const passwordHash = await bcrypt.hash(password, saltRounds);
+        const passwordHash = await hash(password);
 
         await createUser(username, email, passwordHash);
         req.session.username = username;
@@ -29,11 +35,9 @@ app.post("/register", async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-});
+}
 
-
-
-app.post("/login", async (req, res, next) => {
+async function handleLogin(req, res, next) {
     const { error, value } = loginSchema.validate(req.body);
 
     if (error) {
@@ -57,7 +61,7 @@ app.post("/login", async (req, res, next) => {
         }
 
         const passwordHash = user[0]["Password"];
-        const match = await bcrypt.compare(password, passwordHash);
+        const match = await compare(password, passwordHash);
 
         if (!match) {
             return next(createError(400, "Password incorrect."));
@@ -68,14 +72,33 @@ app.post("/login", async (req, res, next) => {
         res.status(200).json({
             message: `Logged in as ${user[0]["Username"]}`
         });
-
     } catch (error) {
         next(error);
     }
-});
+}
 
-app.post("/logout", (req, res) => {
+function handleLogout(req, res) {
     req.session.destroy();
 
     res.status(200).json({ message: "Logged out." });
-});
+}
+
+async function handleProtected(req, res, next) {
+    if (!req.session.username) {
+        return res.status(401).json({ message: "Pls log in."} );
+    }
+
+    try {
+        const users = await getUsers();
+        res.json(users);
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = {
+    handleRegister,
+    handleLogin,
+    handleLogout,
+    handleProtected
+};

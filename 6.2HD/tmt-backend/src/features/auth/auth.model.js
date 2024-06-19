@@ -1,5 +1,16 @@
 const pool = require("../../services/pool");
 
+async function getUsers() {
+    try {
+        const sql = "SELECT * FROM User";
+        const [result, _] = await pool.execute(sql);
+
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function getUserByUsername(username) {
     try {
         const sql = "SELECT * FROM User WHERE Username = ?";
@@ -7,7 +18,7 @@ async function getUserByUsername(username) {
 
         return result;
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 }
 
@@ -15,10 +26,10 @@ async function getUserByEmail(email) {
     try {
         const sql = "SELECT * FROM User WHERE Email = ?";
         const [result, _] = await pool.execute(sql, [email]);
-        
+
         return result;
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 }
 
@@ -29,12 +40,13 @@ async function createUser(username, email, passwordHash) {
 
         await pool.execute(sql, values);
     } catch (error) {
-        console.log(error);
+        throw error;
     }
 }
 
 module.exports = {
+    getUsers,
     getUserByUsername,
     getUserByEmail,
     createUser
-}
+};
