@@ -38,23 +38,17 @@ async function handleRegister(req, res, next) {
 }
 
 async function handleLogin(req, res, next) {
-    const { error, value } = loginSchema.validate(req.body);
+    const { error, value, artifacts } = loginSchema.validate(req.body);
 
     if (error) {
         return next(createError(400, error.details[0].message));
     }
 
-    const { username, email, password } = value;
-    let user;
+    const { usernameOrEmail, password } = value;
+    const isUsername = artifacts.has("username");
 
     try {
-        if (username) {
-            user = await getUserByUsername(username);
-        }
-
-        if (email) {
-            user = await getUserByEmail(email);
-        }
+        const user = await (isUsername ? getUserByUsername(usernameOrEmail) : getUserByEmail(usernameOrEmail));
 
         if (user.length === 0) {
             return next(createError(400, "User does not exist."));
@@ -83,9 +77,16 @@ function handleLogout(req, res) {
     res.status(200).json({ message: "Logged out." });
 }
 
+function handleGetLoginStatus(req, res) {
+    res.status(200).json({
+        isLoggedIn: !!req.session.username,
+        username: req.session.username || ""
+    });
+}
+
 async function handleProtected(req, res, next) {
     if (!req.session.username) {
-        return res.status(401).json({ message: "Pls log in."} );
+        return res.status(401).json({ message: "Pls log in." });
     }
 
     try {
@@ -100,5 +101,6 @@ module.exports = {
     handleRegister,
     handleLogin,
     handleLogout,
+    handleGetLoginStatus,
     handleProtected
 };

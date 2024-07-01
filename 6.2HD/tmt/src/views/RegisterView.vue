@@ -3,12 +3,12 @@ import { useAuthStore } from "@/store/auth";
 import { onMounted, reactive } from "vue";
 import { useRouter } from "vue-router";
 
-const auth = useAuthStore();
-
 const formData = reactive({
     valid: true,
-    usernameOrEmail: "",
-    password: ""
+    username: "",
+    email: "",
+    password: "",
+    cfPassword: ""
 });
 
 const router = useRouter();
@@ -38,11 +38,13 @@ async function onSubmit(event) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
-                usernameOrEmail: formData.usernameOrEmail, 
-                password: formData.password
+                username: formData.username, 
+                email: formData.email,
+                password: formData.password,
+                cfPassword: formData.cfPassword
             })
         }
-        const response = await fetch("/api/login", options);
+        const response = await fetch("/api/register", options);
         const data = await response.json();
 
         console.log(data);
@@ -51,23 +53,23 @@ async function onSubmit(event) {
     }
 }
 
-function toggleAuth() {
-    if (auth.isAuthenticated) {
-        auth.unauthenticate();
-    } else {
-        auth.authenticate();
-    }
-}
+const auth = useAuthStore();
 </script>
 
 <template>
     <div class="body">
         <v-form v-model="valid" @submit="onSubmit">
-            <h1>Login</h1>
+            <h1>Register</h1>
             <v-text-field
-                v-model="formData.usernameOrEmail"
+                v-model="formData.username"
                 variant="outlined"
-                label="Username or email"
+                label="Username"
+            ></v-text-field>
+
+            <v-text-field
+                v-model="formData.email"
+                variant="outlined"
+                label="Email"
             ></v-text-field>
     
             <v-text-field
@@ -76,16 +78,21 @@ function toggleAuth() {
                 label="Password"
                 type="password"
             ></v-text-field>
+
+            <v-text-field
+                v-model="formData.cfPassword"
+                variant="outlined"
+                label="Confirm password"
+                type="password"
+            ></v-text-field>
     
             <v-btn variant="outlined" type="submit">
-                Login
+                Register
             </v-btn>
-
-            <p>Don't have an account? <router-link to="/register">Register</router-link></p>
+            <p>Already have an account? <router-link to="/login">Login</router-link></p>
         </v-form>
 
-        <p>{{ auth.isAuthenticated }}</p>
-        <button @click="toggleAuth">Toggle me</button>
+        {{ auth.isAuthenticated }}
     </div>
 </template>
 

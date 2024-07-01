@@ -26,23 +26,18 @@ const registrationSchema = Joi.object({
 });
 
 const loginSchema = Joi.object({
-    username: Joi.string().messages({
-        "string.empty": "Username cannot be empty."
-    }),
-    email: Joi.string().email().messages({
-        "string.empty": "Email cannot be empty.",
-        "string.email": "Email is invalid."
+    usernameOrEmail: Joi.alternatives(
+        Joi.string().pattern(new RegExp("^[a-zA-Z0-9_]*$")).max(30).artifact("username"),
+        Joi.string().email().artifact("email")
+    ).required().messages({
+        "any.required": "Username or email is required.",
+        "alternatives.match": "usernameOrEmail is neither a valid username nor a valid email."
     }),
     password: Joi.string().required().messages({
         "any.required": "Password is required.",
         "string.empty": "Password cannot be empty."
     })
-})
-    .xor("username", "email")
-    .messages({
-        "object.missing": "Please provide either username or email.",
-        "object.xor": "Please provide either username or email, not both."
-    });
+});
 
 module.exports = {
     registrationSchema,

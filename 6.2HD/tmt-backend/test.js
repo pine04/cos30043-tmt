@@ -1,14 +1,23 @@
-const express = require("express");
+const Joi = require("joi");
 
-const app = express();
-
-app.get("/", (req, res) => {
-    res.status(200).send("Hello world.");
+const schema = Joi.object({
+    identity: Joi.alternatives(
+        Joi.string().pattern(new RegExp("^[a-zA-Z0-9_]*$")).max(30).artifact("username"),
+        Joi.string().email().artifact("email")
+    ).required()
 });
 
-app.listen(8000, () => console.log("Listening on port 8000..."));
+const object = {
+    identity: "tunggnut@gmail.com"
+};
 
-process.on("SIGINT", () => {
-    console.log("Sigint received.");
-    process.exit(0);
-});
+const { value, error, artifacts } = schema.validate(object);
+
+if (error) {
+    console.log(error);
+} else {
+    console.log(value);
+}
+
+console.log(artifacts);
+console.log(artifacts.has("email"));
