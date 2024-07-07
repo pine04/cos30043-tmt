@@ -22,6 +22,29 @@ const registrationSchema = Joi.object({
     cfPassword: Joi.string().equal(Joi.ref("password")).required().messages({
         "any.required": "Confirm password is required.",
         "any.only": "Confirm password does not match password."
+    }),
+    displayName: Joi.string().max(50).required().messages({
+        "any.required": "Display name is required.",
+        "string.empty": "Display name cannot be empty.",
+        "string.max": "The maximum length for display name is 50 characters."
+    }),
+    gender: Joi.string().valid("Male", "Female", "Non-binary", "Undisclosed").required().messages({
+        "any.required": "Gender is required.",
+        "any.only": "Gender must be one of 'Male', 'Female', 'Non-binary', or 'Undisclosed'."
+    }),
+    birthdate: Joi.string().isoDate().required().messages({
+        "any.required": "Birthdate is required.",
+        "string.empty": "Birthdate cannot be empty.",
+        "string.isoDate": "Birthdate must be in ISO 8601 date format."
+    }),
+    location: Joi.string().allow("").max(100).default("").messages({
+        "string.max": "The maximum length for location is 100 characters."
+    }),
+    relationshipStatus: Joi.string().valid("Single", "Dating", "Engaged", "Married", "Undisclosed").default("Undisclosed").messages({
+        "any.only": "Relationship status must be one of 'Single', 'Dating', 'Engaged', 'Married', 'Undisclosed'."
+    }),
+    bio: Joi.string().allow("").max(255).default("").messages({
+        "string.max": "The maximum length for bio is 255 characters."
     })
 });
 

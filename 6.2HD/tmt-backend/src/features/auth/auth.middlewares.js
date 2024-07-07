@@ -2,16 +2,16 @@ const createError = require("http-errors");
 
 const { hash, compare } = require("../../services/bcrypt");
 const { registrationSchema, loginSchema } = require("./auth.schemas");
-const { getUserByUsername, getUserByEmail, createUser, getUsers } = require("./auth.model");
+const { getUserByUsername, getUserByEmail, createUser } = require("../../models/user");
 
 async function handleRegister(req, res, next) {
-    const { error, value } = registrationSchema.validate(req.body);
+    const { error, value: user } = registrationSchema.validate(req.body);
 
     if (error) {
         return next(createError(400, error.details[0].message));
     }
 
-    const { username, email, password } = value;
+    const { username, email, password } = user;
 
     try {
         const userWithUsername = await getUserByUsername(username);
@@ -25,12 +25,14 @@ async function handleRegister(req, res, next) {
         }
 
         const passwordHash = await hash(password);
+        user.password = passwordHash;
 
-        await createUser(username, email, passwordHash);
+        await createUser(user);
         req.session.username = username;
 
         res.status(200).json({
-            message: `Saved to DB user: ${username}, ${email}, ${passwordHash}`
+            message: `Registered successfully.`,
+            username: username
         });
     } catch (error) {
         next(error);
@@ -64,7 +66,8 @@ async function handleLogin(req, res, next) {
         req.session.username = user[0]["Username"];
 
         res.status(200).json({
-            message: `Logged in as ${user[0]["Username"]}`
+            message: "Logged in successfully.",
+            username: user[0]["Username"]
         });
     } catch (error) {
         next(error);
@@ -84,23 +87,9 @@ function handleGetLoginStatus(req, res) {
     });
 }
 
-async function handleProtected(req, res, next) {
-    if (!req.session.username) {
-        return res.status(401).json({ message: "Pls log in." });
-    }
-
-    try {
-        const users = await getUsers();
-        res.json(users);
-    } catch (error) {
-        next(error);
-    }
-}
-
 module.exports = {
     handleRegister,
     handleLogin,
     handleLogout,
     handleGetLoginStatus,
-    handleProtected
 };

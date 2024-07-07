@@ -1,4 +1,4 @@
-const pool = require("../../services/pool");
+const pool = require("../services/pool");
 
 async function getUsers() {
     try {
@@ -33,10 +33,23 @@ async function getUserByEmail(email) {
     }
 }
 
-async function createUser(username, email, passwordHash) {
+async function createUser(user) {
+    let {
+        username,
+        email,
+        password,
+        displayName,
+        gender,
+        birthdate,
+        location,
+        relationshipStatus,
+        bio
+    } = user;
+    birthdate = birthdate.split("T")[0];
+
     try {
-        const sql = "INSERT INTO User (Username, Email, Password) VALUES (?, ?, ?)";
-        const values = [username, email, passwordHash];
+        const sql = "INSERT INTO User (Username, Email, Password, DisplayName, Gender, Birthdate, Location, RelationshipStatus, Bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const values = [username, email, password, displayName, gender, birthdate, location, relationshipStatus, bio];
 
         await pool.execute(sql, values);
     } catch (error) {

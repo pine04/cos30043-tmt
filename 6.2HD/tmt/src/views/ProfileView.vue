@@ -4,15 +4,16 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 import AppBar from "../components/AppBar.vue";
+import LogoutButton from "../components/LogoutButton.vue";
 
-const users = ref([]);
+const profile = ref(null);
 const router = useRouter();
 
 const { setAuthenticationState } = useAuthStore();
 
 onMounted(async () => {
     try {
-        const response = await fetch("/api/protected");
+        const response = await fetch("/api/my-profile");
 
         if (response.status === 401) {
             setAuthenticationState(false);
@@ -23,28 +24,13 @@ onMounted(async () => {
         const data = await response.json();
 
         console.log(data);
-        users.value = data;
+        profile.value = data;
     } catch (err) {
         console.log(err);
     }
 });
 
-async function handleLogout() {
-    try {
-        const response = await fetch("/api/logout", { method: "POST" });
 
-        if (response.status === 200) {
-            setAuthenticationState(false);
-            router.push("/login");
-            return;
-        }
-        const data = await response.json();
-
-        console.log(data);
-    } catch (error) {
-        console.log(error);
-    }
-}
 
 const data = [
     "Keanu Cloud",
@@ -76,12 +62,20 @@ const data = [
 
     <v-main>
         <v-container>
-            <code>
-                <p v-for="user in users">
-                    {{ user }}
-                </p>
-            </code>
-            <v-btn @click="handleLogout" variant="outlined">Log out</v-btn>
+            <v-row class="position-relative">
+                <v-col cols="3" class="bg-red position-sticky top-0">
+                    <p>Profile info</p>
+                    <LogoutButton></LogoutButton>
+                </v-col>
+
+                <v-col cols="9" class="bg-blue">
+                    <p>Posts</p>
+                    <p v-for="n in 100">
+                        Post content.
+                    </p>
+                </v-col>
+            </v-row>
+
         </v-container>
     </v-main>
 </template>

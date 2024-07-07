@@ -6,22 +6,21 @@ const FileStore = require("session-file-store")(session);
 const morgan = require("morgan");
 const cors = require("cors");
 
-const authRouter = require("./src/features/auth/auth.router");
+const authRouter = require("./features/auth/auth.router");
+const profileRouter = require("./features/profile/profile.router");
 
 const app = express();
-const PORT = 8002;
+const PORT = process.env.PORT || 8000;
 
 app.use(cors({
     origin: "http://localhost:5173"
 }));
 app.use(morgan("dev"));
 
-app.use(express.urlencoded())
-
 app.use(express.json());
 app.use(
     session({
-        secret: "textmetomorrow",
+        secret: "textmetomorrow", // probably put in env file :)
         cookie: {
             maxAge: 14 * 24 * 3600 * 1000
         },
@@ -33,19 +32,7 @@ app.use(
     })
 );
 
-app.use("/api", authRouter);
-
-app.get("/login-form", (req, res) => {
-    res.status(200).send(
-        `
-            <form method="POST" action="/login">
-                Username: <input type="text" name="usernameOrEmail">
-                Password: <input type="text" name="password">
-                <button type="submit">Login</button>
-            </form>
-        `
-    )
-})
+app.use("/api", authRouter, profileRouter);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;

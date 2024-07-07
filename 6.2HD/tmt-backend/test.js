@@ -1,23 +1,21 @@
 const Joi = require("joi");
 
 const schema = Joi.object({
-    identity: Joi.alternatives(
-        Joi.string().pattern(new RegExp("^[a-zA-Z0-9_]*$")).max(30).artifact("username"),
-        Joi.string().email().artifact("email")
-    ).required()
+    birthdate: Joi.string().isoDate().required().messages({
+        "any.required": "Birthdate is required.",
+        "string.isoDate": "Birthdate must be in ISO 8601 date format."
+    })
 });
 
-const object = {
-    identity: "tunggnut@gmail.com"
-};
+const d = new Date();
 
-const { value, error, artifacts } = schema.validate(object);
-
-if (error) {
-    console.log(error);
-} else {
-    console.log(value);
+const obj = {
+    birthdate: "asdasd"
 }
 
-console.log(artifacts);
-console.log(artifacts.has("email"));
+const { value, error } = schema.validate(obj);
+console.log(value, error);
+
+let { a } = obj;
+a ??= "hello";
+console.log(a);

@@ -1,9 +1,9 @@
 <script setup>
-import { useAuthStore } from "@/store/auth";
-import { onMounted, reactive } from "vue";
+import { reactive } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/store/auth";
 
-const auth = useAuthStore();
+const { login } = useAuthStore();
 
 const formData = reactive({
     valid: true,
@@ -13,49 +13,19 @@ const formData = reactive({
 
 const router = useRouter();
 
-onMounted(async () => {
-    try {
-        const response = await fetch("/api/login-status");
-        const data = await response.json();
-
-        if (data.isLoggedIn) {
-            router.push("/protected");
-        }
-
-        console.log(data);
-    } catch (error) {
-        console.log(error);
-    }
-});
-
 async function onSubmit(event) {
     event.preventDefault();
 
     try {
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ 
-                usernameOrEmail: formData.usernameOrEmail, 
-                password: formData.password
-            })
-        }
-        const response = await fetch("/api/login", options);
-        const data = await response.json();
+        const { status, data } = await login(formData.usernameOrEmail, formData.password);
 
-        console.log(data);
+        if (status === 200) {
+            router.push("/");
+        } else {
+            console.log(data);
+        }
     } catch (error) {
         console.log(error);
-    }
-}
-
-function toggleAuth() {
-    if (auth.isAuthenticated) {
-        auth.unauthenticate();
-    } else {
-        auth.authenticate();
     }
 }
 </script>
@@ -69,23 +39,18 @@ function toggleAuth() {
                 variant="outlined"
                 label="Username or email"
             ></v-text-field>
-    
+
             <v-text-field
                 v-model="formData.password"
                 variant="outlined"
                 label="Password"
                 type="password"
             ></v-text-field>
-    
-            <v-btn variant="outlined" type="submit">
-                Login
-            </v-btn>
+
+            <v-btn variant="outlined" type="submit"> Login </v-btn>
 
             <p>Don't have an account? <router-link to="/register">Register</router-link></p>
         </v-form>
-
-        <p>{{ auth.isAuthenticated }}</p>
-        <button @click="toggleAuth">Toggle me</button>
     </div>
 </template>
 
