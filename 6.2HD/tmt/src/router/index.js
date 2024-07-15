@@ -5,20 +5,23 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
+            path: "/",
+            component: () => import("../views/HomeView.vue"),
+            meta: { requiresAuth: true }
+        },
+        {
             path: "/login",
-            name: "login",
             component: () => import("../views/LoginView.vue"),
             meta: { requiresAuth: false }
         },
         {
             path: "/register",
-            name: "register",
             component: () => import("../views/RegisterView.vue"),
             meta: { requiresAuth: false }
         },
         {
-            path: "/",
-            component: () => import("../views/ProtectedView.vue"),
+            path: "/chat",
+            component: () => import("../views/ChatView.vue"),
             meta: { requiresAuth: true }
         },
         {

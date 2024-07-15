@@ -1,9 +1,9 @@
 <script setup>
 import { useAuthStore } from "@/store/auth";
-import { computed, onMounted, reactive, ref, toRaw, watch } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
-const { setAuthenticationState } = useAuthStore();
+const { register } = useAuthStore();
 
 const stepperValue = ref(1);
 const stepperValueString = computed(() => stepperValue.value.toString());
@@ -16,7 +16,6 @@ const inputsOfStep = {
 };
 
 const formData = reactive({
-    valid: false,
     username: "",
     email: "",
     password: "",
@@ -33,17 +32,7 @@ const formRef = ref(null);
 
 const router = useRouter();
 
-function dateToISOString(date) {
-    return (
-        date.getFullYear().toString().padStart(4, "0") +
-        "-" +
-        (date.getMonth() + 1).toString().padStart(2, "0") +
-        "-" +
-        date.getDate().toString().padStart(2, "0")
-    );
-}
-
-async function register() {
+async function handleRegister() {
     try {
         const { valid, errors } = await formRef.value?.validate();
 
@@ -56,34 +45,13 @@ async function register() {
             return;
         }
 
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: formData.username,
-                email: formData.email,
-                password: formData.password,
-                cfPassword: formData.cfPassword,
-                displayName: formData.displayName,
-                gender: formData.gender,
-                birthdate: dateToISOString(formData.birthdate),
-                location: formData.location,
-                relationshipStatus: formData.relationshipStatus,
-                bio: formData.bio
-            })
-        };
-        const response = await fetch("/api/register", options);
+        const { status, data } = await register(formData);
 
-        if (response.status === 200) {
-            setAuthenticationState(true);
+        if (status === 200) {
             router.push("/");
-            return;
+        } else {
+            console.log(data);
         }
-
-        const data = await response.json();
-        console.log(data);
     } catch (error) {
         console.log(error);
     }
@@ -91,7 +59,7 @@ async function register() {
 
 function nextStep() {
     if (stepperValue.value === 3) {
-        register();
+        handleRegister();
     } else {
         stepperValue.value++;
     }
@@ -150,7 +118,7 @@ const bioRules = [(v) => v.length <= 255 || "The maximum length for bio is 255 c
 
 <template>
     <h1 class="text-center">Register</h1>
-    <v-form ref="formRef" v-model="formData.valid" class="form">
+    <v-form ref="formRef" class="form">
         <v-stepper v-model="stepperValueString" class="elevation-0">
             <v-stepper-header class="elevation-0">
                 <v-stepper-item title="Login information" value="1"></v-stepper-item>

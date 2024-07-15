@@ -8,8 +8,6 @@ const opts = {
     database: process.env.DB_DATABASE || "tmt"
 }
 
-//console.log(opts);
-
 const pool = mysql.createPool(opts);
 
 module.exports = pool;

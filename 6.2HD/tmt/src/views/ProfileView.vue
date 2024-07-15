@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 
 import AppBar from "../components/AppBar.vue";
 import LogoutButton from "../components/LogoutButton.vue";
+import FriendListPanel from "@/components/FriendListPanel.vue";
 
 const profile = ref(null);
 const router = useRouter();
@@ -29,36 +30,12 @@ onMounted(async () => {
         console.log(err);
     }
 });
-
-
-
-const data = [
-    "Keanu Cloud",
-    "Thea Chamberlin",
-    "Yoselin Crowley",
-    "Kade Zavala",
-    "Jasmin Hoy",
-    "Savanah Dye",
-    "Shelly Adair",
-    "Cade Diehl",
-    "Kaylan Hopkins",
-    "Hazel Abreu"
-]
 </script>
 
 <template>
     <AppBar />
 
-    <v-navigation-drawer location="right" permanent>
-        <div class="d-flex flex-column ga-4 pt-2">
-        <v-list-item v-for="user in data">
-            <div class="d-flex ga-3 align-center">
-                <v-avatar image="default_avatar.jpg" size="small"></v-avatar>
-                <p>{{ user }}</p>
-            </div>
-        </v-list-item>
-        </div>
-    </v-navigation-drawer>
+    <FriendListPanel></FriendListPanel>
 
     <v-main>
         <v-container>
