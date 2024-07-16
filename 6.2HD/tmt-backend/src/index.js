@@ -8,12 +8,13 @@ const cors = require("cors");
 
 const authRouter = require("./features/auth/auth.router");
 const profileRouter = require("./features/profile/profile.router");
+const postsRouter = require("./features/posts/posts.router");
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.SERVER_PORT || 8000;
 
 app.use(cors({
-    origin: "http://localhost:5173"
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173"
 }));
 app.use(morgan("dev"));
 
@@ -32,7 +33,7 @@ app.use(
     })
 );
 
-app.use("/api", authRouter, profileRouter);
+app.use("/api", authRouter, profileRouter, postsRouter);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;

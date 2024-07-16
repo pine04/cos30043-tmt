@@ -15,3 +15,22 @@ CREATE TABLE IF NOT EXISTS `User` (
     `ProfilePicture` VARCHAR(100),
     `Bio` VARCHAR(255)
 );
+
+CREATE TABLE IF NOT EXISTS `Post` (
+    `PostID` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `UserID` INT NOT NULL,
+    `TimePosted` DATETIME NOT NULL,
+    `TextContent` VARCHAR(255) NOT NULL,
+
+    FOREIGN KEY (`UserID`) REFERENCES `User` (`UserID`)
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `PostMedia` (
+    `PostID` INT NOT NULL,
+    `MediaName` CHAR(36) NOT NULL,
+    `Order` INT NOT NULL,
+
+    FOREIGN KEY (`PostID`) REFERENCES `Post` (`PostID`)
+        ON UPDATE CASCADE
+);

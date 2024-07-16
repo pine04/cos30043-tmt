@@ -50,8 +50,9 @@ async function createUser(user) {
     try {
         const sql = "INSERT INTO User (Username, Email, Password, DisplayName, Gender, Birthdate, Location, RelationshipStatus, Bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const values = [username, email, password, displayName, gender, birthdate, location, relationshipStatus, bio];
-
-        await pool.execute(sql, values);
+        const [queryResult, _] = await pool.execute(sql, values);
+        
+        return queryResult;
     } catch (error) {
         throw error;
     }

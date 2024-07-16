@@ -27,7 +27,9 @@ async function handleRegister(req, res, next) {
         const passwordHash = await hash(password);
         user.password = passwordHash;
 
-        await createUser(user);
+        const queryResult = await createUser(user);
+
+        req.session.userId = queryResult.insertId;
         req.session.username = username;
 
         res.status(200).json({
@@ -63,6 +65,7 @@ async function handleLogin(req, res, next) {
             return next(createError(400, "Password incorrect."));
         }
 
+        req.session.userId = user[0]["UserID"];
         req.session.username = user[0]["Username"];
 
         res.status(200).json({

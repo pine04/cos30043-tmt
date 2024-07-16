@@ -14,6 +14,18 @@ import router from "./router";
 
 const app = createApp(App);
 
+// app.directive("blur", {
+//     mounted: (el) => {
+//         const input = el.querySelector(".v-field__field input");
+//         input.onfocus = (ev) => {
+//             console.log("Focused");
+//             ev.target.blur(); 
+//         }
+
+//         input.onblur = () => console.log("blurring...");
+//     }
+// });
+
 const vuetify = createVuetify({
     components: {
         ...components,

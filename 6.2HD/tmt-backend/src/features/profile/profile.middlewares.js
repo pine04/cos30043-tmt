@@ -6,7 +6,6 @@ async function handleGetMyProfile(req, res, next) {
     if (!req.session.username) {
         return next(createError(401, "Not logged in."));
     }
-    console.log("hey")
 
     try {
         const queryResult = await getUserByUsername(req.session.username);
