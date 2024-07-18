@@ -2,12 +2,50 @@
 import AppBar from "@/components/AppBar.vue";
 import LogoutButton from "@/components/LogoutButton.vue";
 import FriendListPanel from "@/components/FriendListPanel.vue";
-import { ref } from "vue";
+import Post from "@/components/Post.vue";
+import { reactive, ref, watch } from "vue";
 
 const dialog = ref(false);
 
+const postContent = reactive({
+    textContent: "",
+    mediaFiles: []
+});
+
+watch(() => postContent.mediaFiles, (val, _) => console.log(val));
+
 function closeDialog() {
     dialog.value = false;
+}
+
+async function post(e) {
+    e.preventDefault();
+
+    try {
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                textContent: postContent.textContent,
+                mediaFiles: postContent.mediaFiles.map(file => file.name)
+            })
+        }
+        const response = await fetch("/api/posts", options);
+        const data = await response.json();
+
+        for (const uploadUrl of data.mediaUploadUrls) {
+            const file = postContent.mediaFiles.find(file => file.name === uploadUrl.file);
+            const uploadOptions = {
+                method: "PUT",
+                body: file
+            };
+            await fetch(uploadUrl.url, uploadOptions);
+        }
+    } catch (error) {
+        console.log(error);
+    }
 }
 </script>
 
@@ -35,16 +73,23 @@ function closeDialog() {
                 </template>
 
                 <v-card class="post-form" max-width="900">
-                    <v-form>
+                    <v-form @submit="post">
                         <v-card-text>
                             <p>What's on your mind?</p>
-                            <v-textarea no-resize rows="15" variant="outlined"></v-textarea>
+                            <v-textarea
+                                no-resize
+                                rows="15"
+                                variant="outlined"
+                                v-model="postContent.textContent"
+                            ></v-textarea>
                             <v-file-input
                                 label="Upload photos and videos"
                                 chips
                                 multiple
                                 variant="outlined"
                                 prepend-icon="mdi-camera"
+                                v-model="postContent.mediaFiles"
+                                accept="image/*, video/*"
                             ></v-file-input>
                         </v-card-text>
                         <v-card-actions>
@@ -57,6 +102,25 @@ function closeDialog() {
             </v-dialog>
 
             <LogoutButton></LogoutButton>
+
+            <Post></Post>
+            <v-divider></v-divider>
+            <Post></Post>
+
+            <v-carousel>
+            <v-carousel-item
+                src="test1.png"
+            ></v-carousel-item>
+            <v-carousel-item
+                src="test2.png"
+            ></v-carousel-item>
+            <v-carousel-item
+                src="test3.png"
+            ></v-carousel-item>
+            <v-carousel-item
+                src="test4.jpg"
+            ></v-carousel-item>
+        </v-carousel>
         </v-container>
     </v-main>
 </template>
