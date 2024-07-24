@@ -6,142 +6,171 @@
                     <v-avatar image="default_avatar.jpg"></v-avatar>
                 </template>
                 <v-list-item-title>
-                    Author display name
+                    {{ postData.author.displayName }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                    @AuthorUsername
+                    @{{ postData.author.username }}
                 </v-list-item-subtitle>
+                <template v-slot:append>
+                    <v-menu>
+                        <template v-slot:activator="{ props }">
+                            <v-btn icon="mdi-dots-vertical" variant="flat" v-bind="props"></v-btn>
+                        </template>
+
+                        <v-list>
+                            <v-list-item>
+                                <v-list-item-title>
+                                    Edit
+                                </v-list-item-title>
+                            </v-list-item>
+                            <v-list-item>Delete</v-list-item>
+                        </v-list>
+                    </v-menu>
+                </template>
             </v-list-item>
         </v-card-title>
+
         <v-card-text>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis repellendus enim impedit debitis, harum cupiditate saepe. Deleniti exercitationem dolores, minus ratione aliquid velit unde ab? Aliquam nam molestias earum repudiandae rerum quis placeat praesentium rem sunt impedit maxime quo blanditiis libero vel debitis nulla officiis itaque tenetur, quod minima inventore.
+            <p v-for="paragraph in paragraphs" class="my-2">
+                {{ paragraph }}
+            </p>
 
-            <v-spacer></v-spacer>
+            <v-dialog v-if="mediaThumbnails.length > 0" v-model="dialog" max-width="1400">
+                <template v-slot:activator="{props: activatorProps}">
+                    <v-row dense class="mt-2">
+                        <v-col v-for="(thumbnail, index) in mediaThumbnails" :cols="layout[mediaThumbnails.length][index]['cols']">
+                            <v-hover v-slot="{ isHovering, props: hoverProps }">
+                                <v-img
+                                    :src="thumbnail"
+                                    width="100%"
+                                    max-height="250"
+                                    :aspect-ratio="layout[mediaThumbnails.length][index]['aspectRatio']"
+                                    cover
+                                    v-bind="activatorProps, hoverProps"
+                                    :class="{ 'hover': isHovering, 'position-relative': true }"
+                                >
+                                    <v-overlay v-if="index === 3" contained :model-value="true" persistent class="justify-center align-center">
+                                        <v-icon icon="mdi-plus" size="96" color="rgba(255, 255, 255, 0.5)"></v-icon>
+                                    </v-overlay>
+                                </v-img>
+                            </v-hover>
+                        </v-col>
+                    </v-row>
+                </template>
 
-            <v-row dense>
-                <v-col cols="6">
-                    <v-hover>
-
-                        <v-img
-                        src="test1.png"
-                        width="100%"
-                        aspect-ratio="1"
-                        cover
-                        @click="show"
-                        ></v-img>
-                    </v-hover>
-                </v-col>
-                <v-col cols="6">
-                    <v-hover>
-
-                        <v-img
-                        src="test2.png"
-                        width="100%"
-                        aspect-ratio="1"
-                        cover
-                        @click="show"
-                        ></v-img>
-                    </v-hover>
-                </v-col>
-                <v-col cols="6">
-                    <v-hover>
-
-                        <v-img
-                        src="test3.png"
-                        width="100%"
-                        aspect-ratio="1"
-                        cover
-                        @click="show"
-                        ></v-img>
-                    </v-hover>
-                </v-col>
-                <v-col cols="6">
-                    <v-hover>
-
-                        <v-img
-                        src="test4.jpg"
-                        width="100%"
-                        aspect-ratio="1"
-                        cover
-                        @click="show"
-                        class="position-relative"
-                        >
-                        <v-overlay contained :model-value="true" persistent class="justify-center align-center">
-                            <v-icon icon="mdi-plus" size="96" color="white"></v-icon>
-                        </v-overlay>
-                    </v-img>
-                </v-hover>
-                </v-col>
-            </v-row>
+                <v-carousel :continuous="false">
+                    <v-carousel-item
+                        v-for="media in postData.media"
+                        :src="media"
+                        color="black"
+                        draggable="false"
+                    ></v-carousel-item>
+                </v-carousel>
+            </v-dialog>
         </v-card-text>
+
         <v-card-actions>
             <v-btn prepend-icon="mdi-thumb-up" :ripple="false">0</v-btn>
             <v-btn prepend-icon="mdi-thumb-down" :ripple="false">0</v-btn>
             <v-btn prepend-icon="mdi-share" :ripple="false">0</v-btn>
         </v-card-actions>
     </v-card>
-
-    <v-dialog v-model="dialog" max-width="1400">
-        <template v-slot:activator="{props: activatorProps}">
-            <v-btn v-bind="activatorProps">Show</v-btn>
-        </template>
-
-        <v-carousel class="carousel">
-                    <v-carousel-item
-                        src="test1.png"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test2.png"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test3.png"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test4.jpg"
-                    ></v-carousel-item>
-                </v-carousel>
-    </v-dialog>
-
-    <v-overlay v-model="showImageCarousel" class="align-center justify-center">
-
-                <v-carousel>
-                    <v-carousel-item
-                        src="test1.png"
-                        width="1200"
-                        color="black"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test2.png"
-                        width="1200"
-                        color="black"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test3.png"
-                        width="1200"
-                        color="black"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        src="test4.jpg"
-                        width="1200"
-                        color="black"
-                    ></v-carousel-item>
-                </v-carousel>
-    </v-overlay>
 </template>
 
 <script setup>
-import { ref } from "vue";
-const showImageCarousel = ref(false);
+import { ref, computed, defineProps, onMounted } from "vue";
+
+const props = defineProps(["postUri"]);
+
+const postData = ref({
+    author: {
+        displayName: "Pine",
+        username: "pine04",
+        avatar: "default_avatar.jpg"
+    },
+    textContent: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis repellendus enim impedit debitis, harum cupiditate saepe.\n\n\nDeleniti exercitationem dolores, minus ratione aliquid velit unde ab? \nAliquam nam molestias earum repudiandae rerum quis placeat praesentium rem sunt impedit maxime quo blanditiis libero vel debitis nulla officiis itaque tenetur, quod minima inventore.",
+    media: [
+        "test1.png",
+        "test2.png",
+        "test3.png",
+        "test4.jpg",
+        "test1.png",
+        "test2.png",
+        "test3.png",
+        "test4.jpg"
+    ]
+});
+
+onMounted(async () => {
+    console.log("post called")
+    try {
+        const response = await fetch(props.postUri);
+        const data = await response.json();
+        postData.value = data.post;
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+const mediaThumbnails = computed(() => postData.value.media.slice(0, 4));
+const paragraphs = computed(() => postData.value.textContent.split("\n"));
+
+const layout = {
+    1: [
+        {
+            cols: "12",
+            aspectRatio: "1"
+        }
+    ],
+    2: [
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "6",
+            aspectRatio: "1"
+        }
+    ],
+    3: [
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "12",
+            aspectRatio: "2"
+        }
+    ],
+    4: [
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "6",
+            aspectRatio: "1"
+        },
+        {
+            cols: "6",
+            aspectRatio: "1"
+        }
+    ]
+}
 
 const dialog = ref(false);
-
-function show() {
-    showImageCarousel.value = true;
-}
 </script>
 
 <style scoped>
-.carousel {
-    width: 1000px;
+.hover {
+    opacity: 0.8;
 }
 </style>

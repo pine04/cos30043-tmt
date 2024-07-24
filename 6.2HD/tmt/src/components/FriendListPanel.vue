@@ -14,7 +14,7 @@ const data = [
 </script>
 
 <template>
-    <v-navigation-drawer location="right" permanent>
+    <v-navigation-drawer location="right" :permanent="!$vuetify.display.mobile">
         <div class="d-flex flex-column ga-4 pt-2">
             <v-list-item v-for="user in data">
                 <div class="d-flex ga-3 align-center">

@@ -1,14 +1,11 @@
 const createError = require("http-errors");
 
 const { createPostSchema } = require("./posts.schemas");
-const { createPost } = require("../../models/post");
+const { createPost, getPostsFromUser, getPost } = require("../../models/post");
 const { getPresignedPutUrl } = require("../../services/bucket");
-const getUniqueId = require("../../services/uuid");
+const { getUniqueNameForFile } = require("../../services/uuid");
 
 async function handleCreatePost(req, res, next) {
-    if (!req.session.username) {
-        return next(createError(401, "Not logged in."));
-    }
 
     const { value: post, error } = createPostSchema.validate(req.body);
     
@@ -17,7 +14,7 @@ async function handleCreatePost(req, res, next) {
     }
 
     const userId = req.session.userId;
-    const uniqueMediaFileIds = post.mediaFiles.map(_ => getUniqueId());
+    const uniqueMediaFileIds = post.mediaFiles.map(fileName => getUniqueNameForFile(fileName));
 
     try {
         const postId = await createPost(userId, post.textContent, uniqueMediaFileIds);
@@ -41,6 +38,40 @@ async function handleCreatePost(req, res, next) {
     }
 }
 
+async function handleGetPost(req, res, next) {
+    const postId = req.params.postId;
+
+    try {
+        const post = await getPost(postId);
+        res.status(200).json({
+            post: post
+        });    
+    } catch (error) {
+        return next(error);
+    }
+}
+
+async function handleGetNewsFeed(req, res, next) {
+
+}
+
+async function handleGetPostsFromUser(req, res, next) {
+    const username = req.params.username;
+    const pageNumber = req.query.pageNumber || 1;
+
+    try {
+        const posts = await getPostsFromUser(username, pageNumber);
+        res.status(200).json({
+            posts: posts.map(post => `/api/posts/${post["PostID"]}`)
+        });    
+    } catch (error) {
+        return next(error);
+    }
+}
+
 module.exports = {
-    handleCreatePost
+    handleCreatePost,
+    handleGetPost,
+    handleGetNewsFeed,
+    handleGetPostsFromUser
 }

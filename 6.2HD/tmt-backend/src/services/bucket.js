@@ -1,15 +1,12 @@
 const minio = require("minio");
 
-const opts = {
-endPoint: process.env.BUCKET_ENDPOINT || 'localhost',
-port: +process.env.BUCKET_PORT || 9000,
-useSSL: !!+process.env.BUCKET_USE_SSL || false,
-accessKey: process.env.BUCKET_ACCESS_KEY || "",
-secretKey: process.env.BUCKET_SECRET_KEY || "",
-}
-console.log(opts)
-
-const bucketClient = new minio.Client(opts);
+const bucketClient = new minio.Client({
+    endPoint: process.env.BUCKET_ENDPOINT || 'localhost',
+    port: +process.env.BUCKET_PORT || 9000,
+    useSSL: !!+process.env.BUCKET_USE_SSL || false,
+    accessKey: process.env.BUCKET_ACCESS_KEY || "",
+    secretKey: process.env.BUCKET_SECRET_KEY || "",
+});
 
 const bucket = process.env.BUCKET_NAME || "tmt";
 
@@ -26,6 +23,15 @@ const bucket = process.env.BUCKET_NAME || "tmt";
     }
 })();
 
+async function getPresignedGetUrl(objectName) {
+    try {
+        const url = await bucketClient.presignedGetObject(bucket, objectName, 5 * 60);
+        return url;
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function getPresignedPutUrl(objectName) {
     try {
         const url = await bucketClient.presignedPutObject(bucket, objectName, 5 * 60);
@@ -36,5 +42,6 @@ async function getPresignedPutUrl(objectName) {
 }
 
 module.exports = {
+    getPresignedGetUrl,
     getPresignedPutUrl
 };

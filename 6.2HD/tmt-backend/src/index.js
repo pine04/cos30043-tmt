@@ -9,6 +9,7 @@ const cors = require("cors");
 const authRouter = require("./features/auth/auth.router");
 const profileRouter = require("./features/profile/profile.router");
 const postsRouter = require("./features/posts/posts.router");
+const { handleError, defaultMiddleware } = require("./utils/helpers");
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 8000;
@@ -34,15 +35,8 @@ app.use(
 );
 
 app.use("/api", authRouter, profileRouter, postsRouter);
-
-app.use((err, req, res, next) => {
-    const status = err.status || 500;
-    const message = err.message || "An error happened on the server";
-
-    console.log(err);
-
-    res.status(status).json({ message });
-});
+app.use("*", defaultMiddleware);
+app.use(handleError);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
 

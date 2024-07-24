@@ -1,6 +1,6 @@
 const createError = require("http-errors");
 
-const { getUserByUsername } = require("../../models/user");
+const { getUserByUsername, getUsersAndFriendshipStatus } = require("../../models/user");
 
 async function handleGetMyProfile(req, res, next) {
     if (!req.session.username) {
@@ -34,12 +34,40 @@ async function handleUpdateMyProfile(req, res, next) {
 
 }
 
-async function handleGetProfile(req, res, next) {
+async function handleGetUser(req, res, next) {
 
+}
+
+async function handleGetUsers(req, res, next) {
+    const pageNumber = req.query.pageNumber || 1;
+    const nameQuery = req.query.nameQuery || "";
+    const location = req.query.location || "";
+    const relationshipStatus = req.query.relationshipStatus || "";
+
+    try {
+        const users = await getUsersAndFriendshipStatus(req.session.userId, pageNumber, nameQuery, location, relationshipStatus);
+        res.status(200).json({
+            users: users.map(user => ({
+                username: user["Username"],
+                email: user["Email"],
+                displayName: user["DisplayName"],
+                gender: user["Gender"],
+                birthdate: user["Birthdate"],
+                location: user["Location"],
+                relationshipStatus: user["RelationshipStatus"],
+                profilePicture: user["ProfilePicture"],
+                bio: user["Bio"],
+                status: user["Status"] || "Not friend"
+            }))
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = {
     handleGetMyProfile,
-    handleGetProfile,
+    handleGetUser,
+    handleGetUsers,
     handleUpdateMyProfile
 };

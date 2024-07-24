@@ -28,6 +28,11 @@ const router = createRouter({
             path: "/profile",
             component: () => import("../views/ProfileView.vue"),
             meta: { requiresAuth: true }
+        },
+        {
+            path: "/find-friends",
+            component: () => import("../views/FindFriends.vue"),
+            meta: { requiresAuth: true }
         }
     ]
 });

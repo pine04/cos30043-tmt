@@ -4,4 +4,12 @@ function getUniqueId() {
     return uuid();
 }
 
-module.exports = getUniqueId;
+function getUniqueNameForFile(fileName) {
+    const extension = fileName.split(".").at(-1).trim();
+    return getUniqueId() + "." + extension;
+}
+
+module.exports = {
+    getUniqueId,
+    getUniqueNameForFile
+};

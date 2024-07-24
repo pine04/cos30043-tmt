@@ -2,13 +2,15 @@ const express = require("express");
 const {
     handleGetMyProfile,
     handleUpdateMyProfile,
-    handleGetProfile
+    handleGetUser,
+    handleGetUsers
 } = require("./profile.middlewares");
 
 const router = express.Router();
 
 router.get("/my-profile", handleGetMyProfile);
 router.patch("/my-profile", handleUpdateMyProfile);
-router.get("/profiles/:username", handleGetProfile);
+router.get("/users/:username", handleGetUser);
+router.get("/users", handleGetUsers);
 
 module.exports = router;
