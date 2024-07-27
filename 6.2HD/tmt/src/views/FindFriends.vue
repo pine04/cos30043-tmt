@@ -77,18 +77,42 @@
                     <p>{{ user.bio }}</p>
 
                     <v-btn
-                        :prepend-icon="user.status === 'Accepted' ? 'mdi-check' : ''"
-                        :color="user.status === 'Accepted' ? 'success' : ''"
-                        :readonly="user.status === 'Accepted'"
+                        :prepend-icon="user.status === 'Friends' ? 'mdi-check' : ''"
+                        :color="user.status === 'Friends' ? 'success' : ''"
                         variant="outlined"
+                        @click="() => user.status === 'Not friend' && sendFriendRequest(user.username)"
                     >
                         {{ statusToDisplayString[user.status] }}
+
+                        <v-menu v-if="user.status === 'Request sent'" activator="parent">
+                            <v-list>
+                                <v-list-item @click="() => cancelFriendRequest(user.username)">
+                                    <v-list-item-title>Cancel request</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+
+                        <v-menu v-if="user.status === 'Friends'" activator="parent">
+                            <v-list>
+                                <v-list-item @click="() => unfriend(user.username)">
+                                    <v-list-item-title>Unfriend</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+
+                        <v-menu v-if="user.status === 'Request received'" activator="parent">
+                            <v-list>
+                                <v-list-item @click="() => acceptFriendRequest(user.username)">
+                                    <v-list-item-title>Accept</v-list-item-title>
+                                </v-list-item>
+                                <v-list-item @click="() => declineFriendRequest(user.username)">
+                                    <v-list-item-title>Decline</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
                     </v-btn>
                 </v-list-item>
             </v-list>
-            <div v-for="user in users">
-                {{ user }}
-            </div>
         </v-container>
     </v-main>
 </template>
@@ -99,6 +123,10 @@ import { ref, reactive, onMounted } from 'vue';
 import dateFormat from 'dateformat';
 
 import AppBar from '@/components/AppBar.vue';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '@/store/auth';
+
+const { currentUsername } = storeToRefs(useAuthStore());
 
 const route = useRoute();
 
@@ -115,10 +143,109 @@ function handleSubmit(event) {
     getFriends();
 }
 
+async function sendFriendRequest(recipientUsername) {
+    console.log(recipientUsername);
+
+    try {
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ recipientUsername })
+        }
+        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/sent`, options);
+        const data = await response.json();
+
+        if (response.status === 201) {
+            users.value.find(user => user.username === recipientUsername).status = "Request sent";
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function cancelFriendRequest(recipientUsername) {
+    console.log(recipientUsername);
+
+    try {
+        const options = {
+            method: "DELETE"
+        }
+        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/sent/${recipientUsername}`, options);
+        const data = await response.json();
+
+        if (response.status === 200) {
+            users.value.find(user => user.username === recipientUsername).status = "Not friend";
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function acceptFriendRequest(senderUsername) {
+    try {
+        const options = {
+            method: "POST"
+        }
+        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}/accept`, options);
+        const data = await response.json();
+
+        if (response.status === 200) {
+            users.value.find(user => user.username === senderUsername).status = "Friends";
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function declineFriendRequest(senderUsername) {
+    try {
+        const options = {
+            method: "DELETE"
+        }
+        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}`, options);
+        const data = await response.json();
+
+        if (response.status === 200) {
+            users.value.find(user => user.username === senderUsername).status = "Not friend";
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function unfriend(username) {
+    try {
+        const options = {
+            method: "DELETE"
+        }
+        const response = await fetch(`/api/users/${currentUsername.value}/friends/${username}`, options);
+        const data = await response.json();
+
+        if (response.status === 200) {
+            users.value.find(user => user.username === username).status = "Not friend";
+        }
+
+        console.log(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 const statusToDisplayString = {
     "Not friend": "Add friend",
-    "Pending": "Pending",
-    "Accepted": "Friends"
+    "Request sent": "Pending",
+    "Request received": "Respond",
+    "Friends": "Friends"
 };
 
 onMounted(() => {

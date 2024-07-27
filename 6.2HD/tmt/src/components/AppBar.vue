@@ -41,22 +41,30 @@
         </div>
     </v-app-bar>
 
-    <v-navigation-drawer location="right" v-model="drawer" :permanent="!$vuetify.display.mobile">
-        <div class="d-flex flex-column ga-4 pt-2">
-            <v-list-item v-for="user in data">
-                <div class="d-flex ga-3 align-center">
-                    <v-avatar image="default_avatar.jpg" size="small"></v-avatar>
-                    <p>{{ user }}</p>
-                </div>
+    <v-navigation-drawer location="right" :model-value="!$vuetify.display.mobile || drawer" :permanent="!$vuetify.display.mobile">
+        <p v-if="friends.length === 0">No friends to show.</p>
+
+        <v-list>
+            <v-list-item v-for="friend in friends">
+                <template v-slot:prepend>
+                    <v-avatar :image="friend.profilePicture || 'default_avatar.jpg'" size="small"></v-avatar>
+                </template>
+
+                <v-list-item-title>
+                    {{ friend.displayName }}
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                    @{{ friend.username }}
+                </v-list-item-subtitle>
             </v-list-item>
-        </div>
+        </v-list>
     </v-navigation-drawer>
 </template>
 
 <script setup>
 import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
-import { ref, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const drawer = ref(false);
@@ -71,22 +79,20 @@ function search() {
     }
 }
 
-watch(searchQuery, (newQuery) => {
-    console.log(newQuery, oldQuery);
-});
+const friends = ref([]);
 
-const data = [
-    "Keanu Cloud",
-    "Thea Chamberlin",
-    "Yoselin Crowley",
-    "Kade Zavala",
-    "Jasmin Hoy",
-    "Savanah Dye",
-    "Shelly Adair",
-    "Cade Diehl",
-    "Kaylan Hopkins",
-    "Hazel Abreu"
-];
+onMounted(async () => {
+    try {
+        const response = await fetch(`/api/users/${currentUsername.value}/friends`);
+        const data = await response.json();
+
+        console.log(data.users);
+
+        friends.value = data.users;
+    } catch (error) {
+        console.log(error);
+    }
+});
 </script>
 
 <style scoped>

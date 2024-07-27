@@ -3,14 +3,27 @@ const {
     handleGetMyProfile,
     handleUpdateMyProfile,
     handleGetUser,
-    handleGetUsers
+    handleGetUsers,
+    handleCreateFriendRequest,
+    handleDeleteFriendRequest,
+    handleDeclineFriendRequest,
+    handleAcceptFriendRequest,
+    handleUnfriend,
+    handleGetFriendsOfUser
 } = require("./profile.middlewares");
+const { requireAuthentication } = require("../../utils/helpers");
 
 const router = express.Router();
 
-router.get("/my-profile", handleGetMyProfile);
-router.patch("/my-profile", handleUpdateMyProfile);
-router.get("/users/:username", handleGetUser);
-router.get("/users", handleGetUsers);
+router.get("/my-profile", requireAuthentication, handleGetMyProfile);
+router.patch("/my-profile", requireAuthentication, handleUpdateMyProfile);
+router.get("/users/:username", requireAuthentication, handleGetUser);
+router.get("/users", requireAuthentication, handleGetUsers);
+router.post("/users/:username/friend-requests/sent", requireAuthentication, handleCreateFriendRequest);
+router.delete("/users/:username/friend-requests/sent/:recipientUsername", requireAuthentication, handleDeleteFriendRequest);
+router.delete("/users/:username/friend-requests/received/:senderUsername", requireAuthentication, handleDeclineFriendRequest);
+router.post("/users/:username/friend-requests/received/:senderUsername/accept", requireAuthentication, handleAcceptFriendRequest);
+router.delete("/users/:username/friends/:friendUsername", requireAuthentication, handleUnfriend);
+router.get("/users/:username/friends", requireAuthentication, handleGetFriendsOfUser);
 
 module.exports = router;
