@@ -18,7 +18,6 @@ export const useAuthStore = defineStore("auth", () => {
         try {
             const response = await fetch("/api/login-status");
             const data = await response.json();
-            console.log(data);
             isAuthenticated.value = data.isLoggedIn;
             currentUsername.value = data.username;
         } catch (error) {

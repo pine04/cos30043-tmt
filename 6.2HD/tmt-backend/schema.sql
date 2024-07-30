@@ -35,6 +35,21 @@ CREATE TABLE IF NOT EXISTS `PostMedia` (
         ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `PostReaction` (
+    `PostID` INT NOT NULL,
+    `ReactorID` INT NOT NULL,
+    `Reaction` ENUM("Like", "Dislike") NOT NULL,
+
+    PRIMARY KEY (`PostID`, `ReactorID`),
+
+    FOREIGN KEY (`PostID`) REFERENCES `Post` (`PostID`)
+        ON UPDATE CASCADE,
+
+    FOREIGN KEY (`ReactorID`) REFERENCES `User` (`UserID`)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS `Friendship` (
     `UserA` INT NOT NULL,
     `UserB` INT NOT NULL,
@@ -50,6 +65,15 @@ CREATE TABLE IF NOT EXISTS `Friendship` (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+
+INSERT INTO `PostReaction` (`PostID`, `ReactorID`, `Reaction`)
+	VALUES (7, (SELECT `UserID` AS `ReactorID` FROM `User` WHERE `Username` = "pine2"), "Dislike")
+    ON DUPLICATE KEY UPDATE `Reaction` = "Dislike";
+    
+SELECT `Reaction` FROM `PostReaction` WHERE `PostID` = 7 AND `ReactorID` = (SELECT `UserID` FROM `User` WHERE `Username` = "pine2");
+    
+DELETE FROM `PostReaction` WHERE `PostID` = 4 AND `ReactorID` = (SELECT `UserID` FROM `User` WHERE `Username` = "pine3");
+
 
 -- Find friends of user with Username
 
@@ -79,6 +103,15 @@ LEFT JOIN (SELECT * FROM `Friendship` WHERE `UserA` = ? OR `UserB` = ?) AS `User
 ON (`User`.`UserID` = `UserARelationships`.`UserA` OR `User`.`UserID` = `UserARelationships`.`UserB`)
 WHERE `UserID` != ?;
 
+SELECT *, COUNT(DISTINCT ReactorID) AS Reactors FROM `Post`
+JOIN `User` ON `Post`.`UserID` = `User`.`UserID`
+LEFT JOIN `PostMedia` ON `Post`.`PostID` = `PostMedia`.`PostID`
+LEFT JOIN `PostReaction` ON `Post`.`PostID` = `PostReaction`.`PostID`
+WHERE `Post`.`PostID` = 4
+GROUP BY `ReactorID`; -- consider separating them into different queries :)
+
+SELECT COUNT(`ReactorID`) AS `ReactionCount`, `Reaction` FROM `PostReaction` WHERE `PostID` = 4 GROUP BY `Reaction`;
+
 
 -- Gets one user (usernameA) and their friendship status with UserB (usernameB).
 -- one more query to get userID
@@ -86,3 +119,19 @@ SELECT * FROM `User`
 LEFT JOIN (SELECT * FROM `Friendship` WHERE `UserA` = ? OR `UserB` = ?) AS `UserARelationships`
 ON (`User`.`UserID` = `UserARelationships`.`UserA` OR `User`.`UserID` = `UserARelationships`.`UserB`)
 WHERE `Username` = ?;
+
+SELECT * FROM `Post`
+JOIN `Friendship` ON `Post`.`UserID` = `Friendship`.`UserA` OR `Post`.`UserID` = `Friendship`.`UserB`
+WHERE `UserA` = (SELECT `UserID` FROM `User` WHERE `Username` = ?) OR `UserB` = (SELECT `UserID` FROM `User` WHERE `Username` = ?) AND `Status` = "Accepted";
+
+UPDATE `Post` SET `TextContent` = ? WHERE `PostID` = ?;
+
+DELETE FROM `Post` WHERE `PostID` = ?;
+
+SELECT `UserID`, `Username`, `DisplayName`, `Gender`, `Birthdate`, `Location`, `RelationshipStatus`, `ProfilePicture`, `Bio` FROM `User`
+JOIN `Friendship` ON `User`.`UserID` = `Friendship`.`UserA`
+WHERE `UserB` = (SELECT `UserID` FROM `User` WHERE `Username` = ?) AND `Status` = "Pending";
+
+SELECT `UserID`, `Username`, `DisplayName`, `Gender`, `Birthdate`, `Location`, `RelationshipStatus`, `ProfilePicture`, `Bio` FROM `User`
+JOIN `Friendship` ON `User`.`UserID` = `Friendship`.`UserB`
+WHERE `UserA` = (SELECT `UserID` FROM `User` WHERE `Username` = ?) AND `Status` = "Pending";

@@ -1,24 +1,25 @@
 <script setup>
 import { useAuthStore } from "@/store/auth";
-import { ref, onMounted } from "vue";
+import { ref, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import dateFormat from "dateformat";
 
-import AppBar from "../components/AppBar.vue";
-import Post from "@/components/Post.vue";
+import Feed from "@/components/Feed.vue";
 
 const profile = ref(null);
-const myPosts = ref([]);
 const router = useRouter();
 
 const route = useRoute();
 
 const { setAuthenticationState } = useAuthStore();
 
-onMounted(async () => {
-    console.log(route.params.username);
+watchEffect(() => {
+    getUserInformation(route.params.username);
+});
+
+async function getUserInformation(username) {
     try {
-        const response = await fetch(`/api/users/${route.params.username}`);
+        const response = await fetch(`/api/users/${username}`);
 
         if (response.status === 401) {
             setAuthenticationState(false);
@@ -30,27 +31,10 @@ onMounted(async () => {
     } catch (err) {
         console.log(err);
     }
-});
-
-onMounted(async () => {
-    try {
-        const response = await fetch(`/api/users/${route.params.username}/posts`);
-
-        if (response.status === 401) {
-            setAuthenticationState(false);
-            router.push("/login");
-            return;
-        }
-        const data = await response.json();
-        myPosts.value = data.posts;
-    } catch (err) {
-        console.log(err);
-    }
-});
+}
 </script>
 
 <template>
-    <AppBar />
 
     <v-main>
         <v-container>
@@ -84,7 +68,7 @@ onMounted(async () => {
                 </v-col>
 
                 <v-col cols="9">
-                    <Post v-for="post in myPosts" :postUri="post"></Post>
+                    <Feed :source="`/api/users/${route.params.username}/posts`"></Feed>
                 </v-col>
             </v-row>
         </v-container>

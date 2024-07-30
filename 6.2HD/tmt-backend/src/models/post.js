@@ -1,6 +1,22 @@
 const { getPresignedGetUrl } = require("../services/bucket");
 const pool = require("../services/pool");
 
+async function getNewsFeed(username, pageNumber = 1) {
+    try {
+        const sql = `
+            SELECT DISTINCT(\`PostID\`), \`TimePosted\` FROM \`Post\`
+            JOIN \`Friendship\` ON \`Post\`.\`UserID\` = \`Friendship\`.\`UserA\` OR \`Post\`.\`UserID\` = \`Friendship\`.\`UserB\`
+            WHERE (\`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)) AND \`Status\` = "Accepted"
+            ORDER BY \`TimePosted\` DESC
+            LIMIT ?, 20
+        `;
+        const [result, _] = await pool.execute(sql, [username, username, String((pageNumber - 1) * 20)]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function createPost(userId, textContent, mediaFileIds) {
     let connection;
 
@@ -35,9 +51,9 @@ async function getPostsFromUser(username, pageNumber = 1) {
             JOIN \`User\` ON \`Post\`.\`UserID\` = \`User\`.\`UserID\` 
             WHERE \`Username\` = ? 
             ORDER BY \`TimePosted\` DESC
-            LIMIT ?, 20
+            LIMIT ?, 10
         `;
-        const [result, _] = await pool.execute(sql, [username, `${(pageNumber - 1) * 20}`]);
+        const [result, _] = await pool.execute(sql, [username, `${(pageNumber - 1) * 10}`]);
         return result;
     } catch (error) {
         throw error;
@@ -46,26 +62,34 @@ async function getPostsFromUser(username, pageNumber = 1) {
 
 async function getPost(postId) {
     try {
-        const sql = `
+        const postSql = `
             SELECT \`DisplayName\`, \`Username\`, \`Post\`.\`PostID\` AS \`PostID\`, \`TimePosted\`, \`TextContent\`, \`MediaName\`, \`Order\` FROM \`Post\`
             JOIN \`User\` ON \`Post\`.\`UserID\` = \`User\`.\`UserID\`
             LEFT JOIN \`PostMedia\` ON \`Post\`.\`PostID\` = \`PostMedia\`.\`PostID\`
             WHERE \`Post\`.\`PostID\` = ?
             ORDER BY \`Order\`
         `;
-        const [result, _] = await pool.execute(sql, [postId]);
+        const [postResult,] = await pool.execute(postSql, [postId]);
 
-        if (result.length === 0) {
+        const reactionSql = `
+            SELECT COUNT(\`ReactorID\`) AS \`ReactionCount\`, \`Reaction\` FROM \`PostReaction\` WHERE \`PostID\` = ? GROUP BY \`Reaction\`
+        `;
+        const [reactionResult,] = await pool.execute(reactionSql, [postId]);
+
+        if (postResult.length === 0) {
             return null;
         } else {
-            const postDetails = result[0];
-            const mediaFileNames = result.filter(row => row["MediaName"] !== null).map(media => media["MediaName"]);
+            const postDetails = postResult[0];
+            const mediaFileNames = postResult.filter(row => row["MediaName"] !== null).map(media => media["MediaName"]);
             const mediaFileUrls = [];
 
             for (const fileName of mediaFileNames) {
                 const url = await getPresignedGetUrl(fileName);
                 mediaFileUrls.push(url);
             }
+
+            const reactionTypes = { };
+            reactionResult.forEach(reaction => reactionTypes[reaction["Reaction"]] = reaction["ReactionCount"]);
 
             const post = {
                 author: {
@@ -75,7 +99,11 @@ async function getPost(postId) {
                 postId: postDetails["PostID"],
                 timePosted: postDetails["TimePosted"],
                 textContent: postDetails["TextContent"],
-                media: mediaFileUrls
+                media: mediaFileUrls,
+                reactions: {
+                    likes: reactionTypes["Like"] ?? 0,
+                    dislikes: reactionTypes["Dislike"] ?? 0
+                }
             };
 
             return post;
@@ -85,8 +113,81 @@ async function getPost(postId) {
     }
 }
 
+async function getSingleReactionToPost(postId, username) {
+    try {
+        const sql = `
+            SELECT \`Reaction\` FROM \`PostReaction\` WHERE \`PostID\` = ? AND \`ReactorID\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)
+        `;
+        const [result,] = await pool.execute(sql, [postId, username]);
+        
+        if (result.length === 0) {
+            return "None";
+        } else {
+            return result[0]["Reaction"];
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function createReaction(postId, username, type) {
+    try {
+        const sql = `
+            INSERT INTO \`PostReaction\` (\`PostID\`, \`ReactorID\`, \`Reaction\`)
+	        VALUES (?, (SELECT \`UserID\` AS \`ReactorID\` FROM \`User\` WHERE \`Username\` = ?), ?)
+            ON DUPLICATE KEY UPDATE \`Reaction\` = ?
+        `;
+        const values = [postId, username, type, type];
+        await pool.execute(sql, values);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function deleteReaction(postId, username) {
+    try {
+        const sql = `
+            DELETE FROM \`PostReaction\` WHERE \`PostID\` = ? AND \`ReactorID\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?);
+        `;
+        const values = [postId, username];
+        await pool.execute(sql, values);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function editPost(postId, textContent) {
+    try {
+        const sql = `
+            UPDATE \`Post\` SET \`TextContent\` = ? WHERE \`PostID\` = ?
+        `;
+        const values = [textContent, postId];
+        await pool.execute(sql, values);
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function deletePost(postId) {
+    try {
+        const sql = `
+            DELETE FROM \`Post\` WHERE \`PostID\` = ?
+        `;
+        const values = [postId];
+        await pool.execute(sql, values);
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     createPost,
     getPostsFromUser,
-    getPost
+    getPost,
+    createReaction, 
+    deleteReaction,
+    getSingleReactionToPost,
+    getNewsFeed,
+    editPost,
+    deletePost
 }

@@ -6,7 +6,6 @@ import { useAuthStore } from "@/store/auth";
 const { login } = useAuthStore();
 
 const formData = reactive({
-    valid: true,
     usernameOrEmail: "",
     password: ""
 });
@@ -32,7 +31,7 @@ async function onSubmit(event) {
 
 <template>
     <div class="body">
-        <v-form v-model="valid" @submit="onSubmit">
+        <v-form @submit="onSubmit">
             <h1>Login</h1>
             <v-text-field
                 v-model="formData.usernameOrEmail"

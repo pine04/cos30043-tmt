@@ -20,11 +20,6 @@ const router = createRouter({
             meta: { requiresAuth: false }
         },
         {
-            path: "/chat",
-            component: () => import("../views/ChatView.vue"),
-            meta: { requiresAuth: true }
-        },
-        {
             path: "/my-profile",
             component: () => import("../views/ProfileView.vue"),
             meta: { requiresAuth: true }
@@ -37,6 +32,11 @@ const router = createRouter({
         {
             path: "/find-friends",
             component: () => import("../views/FindFriends.vue"),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: "/requests",
+            component: () => import("../views/FriendRequests.vue"),
             meta: { requiresAuth: true }
         }
     ]

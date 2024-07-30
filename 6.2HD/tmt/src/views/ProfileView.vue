@@ -4,12 +4,10 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import dateFormat from "dateformat";
 
-import AppBar from "../components/AppBar.vue";
 import LogoutButton from "../components/LogoutButton.vue";
-import Post from "@/components/Post.vue";
+import Feed from "@/components/Feed.vue";
 
 const profile = ref(null);
-const myPosts = ref([]);
 const router = useRouter();
 
 const { currentUsername, setAuthenticationState } = useAuthStore();
@@ -29,31 +27,14 @@ onMounted(async () => {
         console.log(err);
     }
 });
-
-onMounted(async () => {
-    try {
-        const response = await fetch(`/api/users/${currentUsername}/posts`);
-
-        if (response.status === 401) {
-            setAuthenticationState(false);
-            router.push("/login");
-            return;
-        }
-        const data = await response.json();
-        myPosts.value = data.posts;
-    } catch (err) {
-        console.log(err);
-    }
-});
 </script>
 
 <template>
-    <AppBar />
 
     <v-main>
         <v-container>
             <v-row class="position-relative">
-                <v-col cols="3">
+                <v-col cols="12" md="3">
                     <div v-if="profile !== null">
                         <v-avatar image="default_avatar.jpg" size="96"></v-avatar>
                         <h1 class="text-right">{{ profile.displayName }}</h1>
@@ -82,8 +63,8 @@ onMounted(async () => {
                     </div>
                 </v-col>
 
-                <v-col cols="9">
-                    <Post v-for="post in myPosts" :postUri="post"></Post>
+                <v-col cols="12" md="9">
+                    <Feed :source="`/api/users/${currentUsername}/posts`"></Feed>
                 </v-col>
             </v-row>
         </v-container>

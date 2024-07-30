@@ -67,6 +67,8 @@ async function getUserAndFriendshipStatus(currentUserId, targetUsername) {
         const [result, _] = await pool.execute(sql, values);
         const userRow = result[0];
 
+        console.log(userRow);
+
         const user = {
             userId: userRow["UserID"],
             username: userRow["Username"],
@@ -176,12 +178,26 @@ async function deleteFriendship(username, friendUsername) {
 async function getSentFriendRequests(senderUsername) {
     try {
         const sql = `
-            SELECT * FROM \`User\`
-            JOIN (SELECT * FROM \`Friendship\` WHERE \`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) AND \`Status\` = "Pending") AS \`SentRequests\`
-            ON \`User\`.\`UserID\` = \`SentRequests\`.\`UserB\`
+            SELECT \`UserID\`, \`Username\`, \`DisplayName\`, \`Gender\`, \`Birthdate\`, \`Location\`, \`RelationshipStatus\`, \`ProfilePicture\`, \`Bio\` FROM \`User\`
+            JOIN \`Friendship\` ON \`User\`.\`UserID\` = \`Friendship\`.\`UserB\`
+            WHERE \`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) AND \`Status\` = "Pending";
         `;
-        const [result, _] = await pool.execute(sql, [senderUsername]);
-        return result;
+        const values = [senderUsername];
+        const [result, _] = await pool.execute(sql, values);
+
+        const requests = result.map(request => ({
+            userId: request["UserID"],
+            username: request["Username"],
+            displayName: request["DisplayName"],
+            gender: request["Gender"],
+            birthdate: request["Birthdate"],
+            location: request["Location"],
+            relationshipStatus: request["RelationshipStatus"],
+            profilePicture: request["ProfilePicture"],
+            bio: request["Bio"],
+            status: "Request sent"
+        }));
+        return requests;
     } catch (error) {
         throw error;
     }
@@ -190,12 +206,26 @@ async function getSentFriendRequests(senderUsername) {
 async function getReceivedFriendRequests(recipientUsername) {
     try {
         const sql = `
-            SELECT * FROM \`User\`
-            JOIN (SELECT * FROM \`Friendship\` WHERE \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) AND \`Status\` = "Pending") AS \`ReceivedRequests\`
-            ON \`User\`.\`UserID\` = \`ReceivedRequests\`.\`UserA\`
+            SELECT \`UserID\`, \`Username\`, \`DisplayName\`, \`Gender\`, \`Birthdate\`, \`Location\`, \`RelationshipStatus\`, \`ProfilePicture\`, \`Bio\` FROM \`User\`
+            JOIN \`Friendship\` ON \`User\`.\`UserID\` = \`Friendship\`.\`UserA\`
+            WHERE \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) AND \`Status\` = "Pending";
         `;
-        const [result, _] = await pool.execute(sql, [recipientUsername]);
-        return result;
+        const values = [recipientUsername];
+        const [result, _] = await pool.execute(sql, values);
+
+        const requests = result.map(request => ({
+            userId: request["UserID"],
+            username: request["Username"],
+            displayName: request["DisplayName"],
+            gender: request["Gender"],
+            birthdate: request["Birthdate"],
+            location: request["Location"],
+            relationshipStatus: request["RelationshipStatus"],
+            profilePicture: request["ProfilePicture"],
+            bio: request["Bio"],
+            status: "Request received"
+        }));
+        return requests;
     } catch (error) {
         throw error;
     }

@@ -14,7 +14,7 @@
                     </v-card>
                 </template>
 
-                <v-card class="post-form" max-width="900">
+                <v-card>
                     <v-form @submit="post">
                         <v-card-text>
                             <p>What's on your mind?</p>

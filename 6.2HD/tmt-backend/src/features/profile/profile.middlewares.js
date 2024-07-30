@@ -1,6 +1,6 @@
 const createError = require("http-errors");
 
-const { getUserByUsername, getUsersAndFriendshipStatus, createFriendRequest, deleteFriendRequest, acceptFriendRequest, deleteFriendship, getFriendsOfUser, getUserAndFriendshipStatus } = require("../../models/user");
+const { getUserByUsername, getUsersAndFriendshipStatus, createFriendRequest, deleteFriendRequest, acceptFriendRequest, deleteFriendship, getFriendsOfUser, getUserAndFriendshipStatus, getReceivedFriendRequests, getSentFriendRequests } = require("../../models/user");
 const { createFriendRequestSchema } = require("./users.schemas");
 
 async function handleGetMyProfile(req, res, next) {
@@ -153,6 +153,32 @@ async function handleGetUsers(req, res, next) {
     }
 }
 
+async function handleGetReceivedRequests(req, res, next) {
+    const username = req.params.username;
+
+    try {
+        const requests = await getReceivedFriendRequests(username);
+        res.status(200).json({
+            requests
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function handleGetSentRequests(req, res, next) {
+    const username = req.params.username;
+
+    try {
+        const requests = await getSentFriendRequests(username);
+        res.status(200).json({
+            requests
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     handleGetMyProfile,
     handleGetUser,
@@ -163,5 +189,7 @@ module.exports = {
     handleDeclineFriendRequest,
     handleAcceptFriendRequest,
     handleUnfriend,
-    handleGetFriendsOfUser
+    handleGetFriendsOfUser,
+    handleGetReceivedRequests,
+    handleGetSentRequests
 };

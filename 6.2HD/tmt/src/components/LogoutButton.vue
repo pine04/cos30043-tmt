@@ -1,5 +1,7 @@
 <template>
-    <v-btn @click="handleLogout" variant="outlined">Log out</v-btn>
+    <v-btn @click="handleLogout" icon>
+        <v-icon icon="mdi-logout" size="large"></v-icon>
+    </v-btn>
 </template>
 
 <script setup>

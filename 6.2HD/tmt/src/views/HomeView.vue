@@ -1,16 +1,18 @@
 <script setup>
-import AppBar from "@/components/AppBar.vue";
-import FriendListPanel from "@/components/FriendListPanel.vue";
 import PostUploadForm from "@/components/PostUploadForm.vue";
+import Feed from "@/components/Feed.vue";
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "@/store/auth";
+
+const { currentUsername } = storeToRefs(useAuthStore());
 </script>
 
 <template>
-    <AppBar />
 
     <v-main>
         <v-container>
             <PostUploadForm></PostUploadForm>
-            
+            <Feed :source="`/api/users/${currentUsername}/news-feed`"></Feed>
         </v-container>
     </v-main>
 </template>
