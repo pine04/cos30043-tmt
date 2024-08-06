@@ -4,13 +4,14 @@ const pool = require("../services/pool");
 async function getNewsFeed(username, pageNumber = 1) {
     try {
         const sql = `
-            SELECT DISTINCT(\`PostID\`), \`TimePosted\` FROM \`Post\`
-            JOIN \`Friendship\` ON \`Post\`.\`UserID\` = \`Friendship\`.\`UserA\` OR \`Post\`.\`UserID\` = \`Friendship\`.\`UserB\`
-            WHERE (\`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)) AND \`Status\` = "Accepted"
+            SELECT * FROM \`Post\`
+            LEFT JOIN (SELECT * FROM \`Friendship\` WHERE \`UserA\` = ? OR \`UserB\` = ?) AS \`MyFriends\`
+            ON \`Post\`.\`UserID\` = \`MyFriends\`.\`UserA\` OR \`Post\`.\`UserID\` = \`MyFriends\`.\`UserB\`
+            WHERE \`UserID\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR ((\`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)) AND \`Status\` = "Accepted")
             ORDER BY \`TimePosted\` DESC
             LIMIT ?, 20
         `;
-        const [result, _] = await pool.execute(sql, [username, username, String((pageNumber - 1) * 20)]);
+        const [result, _] = await pool.execute(sql, [username, username, username, username, username, String((pageNumber - 1) * 20)]);
         return result;
     } catch (error) {
         throw error;

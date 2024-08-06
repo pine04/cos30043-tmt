@@ -1,23 +1,38 @@
 <template>
     <v-main>
         <v-container>
-            {{ receivedRequests }}
-    
+            <h2 class="my-5">Sent requests</h2>
+
+            <v-alert
+                v-if="sentRequests.length === 0"
+                type="info"
+                text="You have not sent any friend requests."
+                variant="tonal"
+            ></v-alert>
+
+            <UserCard v-for="user in sentRequests" :user="user"></UserCard>
+
             <v-divider></v-divider>
-    
-            <UserCard
-                v-for="user in sentRequests"
-                :user="user"
-            ></UserCard>
+
+            <h2 class="my-5">Received requests</h2>
+
+            <v-alert
+                v-if="receivedRequests.length === 0"
+                type="info"
+                text="You have not received any friend requests."
+                variant="tonal"
+            ></v-alert>
+
+            <UserCard v-for="user in receivedRequests" :user="user"></UserCard>
         </v-container>
     </v-main>
 </template>
 
 <script setup>
-import UserCard from '@/components/UserCard.vue';
-import { useAuthStore } from '@/store/auth';
-import { storeToRefs } from 'pinia';
-import { watchEffect, ref } from 'vue';
+import UserCard from "@/components/UserCard.vue";
+import { useAuthStore } from "@/store/auth";
+import { storeToRefs } from "pinia";
+import { watchEffect, ref } from "vue";
 
 const { currentUsername } = storeToRefs(useAuthStore());
 

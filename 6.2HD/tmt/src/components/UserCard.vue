@@ -4,14 +4,15 @@
             <v-card-title>
                 {{ user.displayName }}
             </v-card-title>
-            <v-card-subtitle>
-                @{{ user.username }}
-            </v-card-subtitle>
+            <v-card-subtitle> @{{ user.username }} </v-card-subtitle>
 
             <template v-slot:append>
-                <v-btn :prepend-icon="user.status === 'Friends' ? 'mdi-check' : ''"
-                    :color="user.status === 'Friends' ? 'success' : ''" variant="outlined"
-                    @click="() => user.status === 'Not friend' && sendFriendRequest(user.username)">
+                <v-btn
+                    :prepend-icon="user.status === 'Friends' ? 'mdi-check' : ''"
+                    :color="user.status === 'Friends' ? 'success' : ''"
+                    variant="outlined"
+                    @click="() => user.status === 'Not friend' && sendFriendRequest(user.username)"
+                >
                     {{ statusToDisplayString[user.status] }}
 
                     <v-menu v-if="user.status === 'Request sent'" activator="parent">
@@ -45,38 +46,35 @@
         </v-card-item>
 
         <v-card-text>
+            <p><v-icon icon="mdi-email"></v-icon> {{ user.email }}</p>
+            <p><v-icon icon="mdi-account"></v-icon> {{ user.gender }}</p>
             <p>
-                <v-icon icon="mdi-email"></v-icon> {{ user.email }}
+                <v-icon icon="mdi-cake-variant"></v-icon>
+                {{ dateFormat(user.birthdate, "longDate") }}
             </p>
-            <p>
-                <v-icon icon="mdi-account"></v-icon> {{ user.gender }}
-            </p>
-            <p>
-                <v-icon icon="mdi-cake-variant"></v-icon> {{ dateFormat(user.birthdate, "longDate") }}
-            </p>
-            <p v-if="user.location">
-                <v-icon icon="mdi-map-marker"></v-icon> {{ user.location }}
-            </p>
-            <p>
-                <v-icon icon="mdi-heart"></v-icon> {{ user.relationshipStatus }}
-            </p>
-            <p v-if="user.bio">
-                <v-icon icon="mdi-information"></v-icon> {{ user.bio }}
-            </p>
+            <p v-if="user.location"><v-icon icon="mdi-map-marker"></v-icon> {{ user.location }}</p>
+            <p><v-icon icon="mdi-heart"></v-icon> {{ user.relationshipStatus }}</p>
+            <p v-if="user.bio"><v-icon icon="mdi-information"></v-icon> {{ user.bio }}</p>
         </v-card-text>
     </v-card>
 </template>
 
 <script setup>
-import { defineProps, toRef } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '@/store/auth';
-import dateFormat from 'dateformat';
+import { defineProps, toRef } from "vue";
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "@/store/auth";
+import dateFormat from "dateformat";
 
 const { currentUsername } = storeToRefs(useAuthStore());
 
 const props = defineProps(["user"]);
-const emit = defineEmits(["sendRequest", "cancelRequest", "acceptRequest", "declineRequest", "unfriend"]);
+const emit = defineEmits([
+    "sendRequest",
+    "cancelRequest",
+    "acceptRequest",
+    "declineRequest",
+    "unfriend"
+]);
 
 const user = toRef(props, "user");
 
@@ -88,8 +86,11 @@ async function sendFriendRequest(recipientUsername) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ recipientUsername })
-        }
-        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/sent`, options);
+        };
+        const response = await fetch(
+            `/api/users/${currentUsername.value}/friend-requests/sent`,
+            options
+        );
         const data = await response.json();
 
         if (response.status === 201) {
@@ -106,8 +107,11 @@ async function cancelFriendRequest(recipientUsername) {
     try {
         const options = {
             method: "DELETE"
-        }
-        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/sent/${recipientUsername}`, options);
+        };
+        const response = await fetch(
+            `/api/users/${currentUsername.value}/friend-requests/sent/${recipientUsername}`,
+            options
+        );
         const data = await response.json();
 
         if (response.status === 200) {
@@ -124,8 +128,11 @@ async function acceptFriendRequest(senderUsername) {
     try {
         const options = {
             method: "POST"
-        }
-        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}/accept`, options);
+        };
+        const response = await fetch(
+            `/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}/accept`,
+            options
+        );
         const data = await response.json();
 
         if (response.status === 200) {
@@ -142,8 +149,11 @@ async function declineFriendRequest(senderUsername) {
     try {
         const options = {
             method: "DELETE"
-        }
-        const response = await fetch(`/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}`, options);
+        };
+        const response = await fetch(
+            `/api/users/${currentUsername.value}/friend-requests/received/${senderUsername}`,
+            options
+        );
         const data = await response.json();
 
         if (response.status === 200) {
@@ -160,8 +170,11 @@ async function unfriend(username) {
     try {
         const options = {
             method: "DELETE"
-        }
-        const response = await fetch(`/api/users/${currentUsername.value}/friends/${username}`, options);
+        };
+        const response = await fetch(
+            `/api/users/${currentUsername.value}/friends/${username}`,
+            options
+        );
         const data = await response.json();
 
         if (response.status === 200) {
@@ -178,7 +191,6 @@ const statusToDisplayString = {
     "Not friend": "Add friend",
     "Request sent": "Pending",
     "Request received": "Respond",
-    "Friends": "Friends"
+    Friends: "Friends"
 };
-
 </script>

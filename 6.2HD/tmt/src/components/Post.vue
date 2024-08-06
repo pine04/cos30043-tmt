@@ -10,9 +10,7 @@
                     {{ postData.post.author.displayName }}
                 </v-list-item-title>
 
-                <v-list-item-subtitle>
-                    @{{ postData.post.author.username }}
-                </v-list-item-subtitle>
+                <v-list-item-subtitle> @{{ postData.post.author.username }} </v-list-item-subtitle>
 
                 <template v-if="postData.post.author.username === currentUsername" v-slot:append>
                     <v-menu>
@@ -21,34 +19,38 @@
                         </template>
 
                         <v-list>
-                            <v-list-item @click="openEditDialog">
-                                Edit
-                            </v-list-item>
-                            <v-list-item @click="openDeleteDialog">
-                                Delete
-                            </v-list-item>
+                            <v-list-item @click="openEditDialog"> Edit </v-list-item>
+                            <v-list-item @click="openDeleteDialog"> Delete </v-list-item>
                         </v-list>
                     </v-menu>
 
-                    <v-dialog v-model="editDialog" @after-leave="exitEditDialog" max-width="600" persistent>
+                    <v-dialog
+                        v-model="editDialog"
+                        @after-leave="exitEditDialog"
+                        max-width="600"
+                        persistent
+                    >
                         <v-card>
                             <v-card-title>Edit post</v-card-title>
 
-                            <v-card-text>        
-                                    <v-textarea 
-                                        v-model="editedPostText"
-                                        no-resize
-                                rows="15"
-                                variant="outlined"
-
-                                    ></v-textarea>
-        
-                                    
+                            <v-card-text>
+                                <v-textarea
+                                    v-model="editedPostText"
+                                    no-resize
+                                    rows="15"
+                                    variant="outlined"
+                                ></v-textarea>
                             </v-card-text>
 
                             <v-card-actions>
                                 <v-btn type="button" @click="exitEditDialog">Cancel</v-btn>
-                                <v-btn type="submit" color="primary" variant="tonal" @click="handleEdit">Edit</v-btn>
+                                <v-btn
+                                    type="submit"
+                                    color="primary"
+                                    variant="tonal"
+                                    @click="handleEdit"
+                                    >Edit</v-btn
+                                >
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -57,13 +59,19 @@
                         <v-card>
                             <v-card-title>Delete post</v-card-title>
 
-                            <v-card-text>        
-                                    Do you want to delete this post? This action cannot be undone.                                    
+                            <v-card-text>
+                                Do you want to delete this post? This action cannot be undone.
                             </v-card-text>
 
                             <v-card-actions>
                                 <v-btn type="button" @click="exitDeleteDialog">Cancel</v-btn>
-                                <v-btn type="submit" color="error" variant="tonal" @click="handleDelete">Delete</v-btn>
+                                <v-btn
+                                    type="submit"
+                                    color="error"
+                                    variant="tonal"
+                                    @click="handleDelete"
+                                    >Delete</v-btn
+                                >
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
@@ -77,24 +85,34 @@
             </p>
 
             <v-dialog v-if="mediaThumbnails.length > 0" v-model="mediaDialog" max-width="1400">
-                <template v-slot:activator="{props: activatorProps}">
+                <template v-slot:activator="{ props: activatorProps }">
                     <v-row dense class="mt-2">
-                        <v-col v-for="(thumbnail, index) in mediaThumbnails" :cols="layout[mediaThumbnails.length][index]['cols']">
-                            <v-hover v-slot="{ isHovering, props: hoverProps }">
-                                <v-img
-                                    :src="thumbnail"
-                                    width="100%"
-                                    max-height="250"
-                                    :aspect-ratio="layout[mediaThumbnails.length][index]['aspectRatio']"
-                                    cover
-                                    v-bind="activatorProps, hoverProps"
-                                    :class="{ 'hover': isHovering, 'position-relative': true }"
+                        <v-col
+                            v-for="(thumbnail, index) in mediaThumbnails"
+                            :cols="layout[mediaThumbnails.length][index]['cols']"
+                        >
+                            <v-img
+                                :src="thumbnail"
+                                width="100%"
+                                max-height="250"
+                                :aspect-ratio="layout[mediaThumbnails.length][index]['aspectRatio']"
+                                cover
+                                v-hover
+                            >
+                                <v-overlay
+                                    v-if="index === 3"
+                                    contained
+                                    :model-value="true"
+                                    persistent
+                                    class="justify-center align-center"
                                 >
-                                    <v-overlay v-if="index === 3" contained :model-value="true" persistent class="justify-center align-center">
-                                        <v-icon icon="mdi-plus" size="96" color="rgba(255, 255, 255, 0.5)"></v-icon>
-                                    </v-overlay>
-                                </v-img>
-                            </v-hover>
+                                    <v-icon
+                                        icon="mdi-plus"
+                                        size="96"
+                                        color="rgba(255, 255, 255, 0.5)"
+                                    ></v-icon>
+                                </v-overlay>
+                            </v-img>
                         </v-col>
                     </v-row>
                 </template>
@@ -115,17 +133,17 @@
         </v-card-text>
 
         <v-card-actions>
-            <v-btn 
-                prepend-icon="mdi-thumb-up" 
-                :ripple="false" 
+            <v-btn
+                prepend-icon="mdi-thumb-up"
+                :ripple="false"
                 :color="hasLiked ? 'primary' : ''"
                 @click="handleClickOnLike"
             >
                 {{ postData.post.reactions.likes }}
             </v-btn>
-            <v-btn 
-                prepend-icon="mdi-thumb-down" 
-                :ripple="false" 
+            <v-btn
+                prepend-icon="mdi-thumb-down"
+                :ripple="false"
                 :color="hasDisliked ? 'primary' : ''"
                 @click="handleClickOnDislike"
             >
@@ -211,7 +229,7 @@ const layout = {
             aspectRatio: "1"
         }
     ]
-}
+};
 
 const mediaDialog = ref(false);
 const editDialog = ref(false);
@@ -237,7 +255,7 @@ async function handleEdit() {
             body: JSON.stringify({
                 textContent: editedPostText.value
             })
-        }
+        };
         const response = await fetch(`/api/posts/${postData.value.post.postId}`, options);
         const data = await response.json();
         console.log(data);
@@ -261,7 +279,9 @@ function exitDeleteDialog() {
 
 async function handleDelete() {
     try {
-        const response = await fetch(`/api/posts/${postData.value.post.postId}`, { method: "DELETE" });
+        const response = await fetch(`/api/posts/${postData.value.post.postId}`, {
+            method: "DELETE"
+        });
         const data = await response.json();
         console.log(data);
 
@@ -286,7 +306,10 @@ async function like() {
             },
             body: JSON.stringify({ reaction: "Like" })
         };
-        const response = await fetch(`${props.postUri}/reactions/${currentUsername.value}`, options);
+        const response = await fetch(
+            `${props.postUri}/reactions/${currentUsername.value}`,
+            options
+        );
         const data = await response.json();
         console.log(data);
 
@@ -308,7 +331,10 @@ async function dislike() {
             },
             body: JSON.stringify({ reaction: "Dislike" })
         };
-        const response = await fetch(`${props.postUri}/reactions/${currentUsername.value}`, options);
+        const response = await fetch(
+            `${props.postUri}/reactions/${currentUsername.value}`,
+            options
+        );
         const data = await response.json();
         console.log(data);
 
@@ -323,7 +349,9 @@ async function dislike() {
 
 async function removeReaction() {
     try {
-        const response = await fetch(`${props.postUri}/reactions/${currentUsername.value}`, { method: "DELETE" });
+        const response = await fetch(`${props.postUri}/reactions/${currentUsername.value}`, {
+            method: "DELETE"
+        });
         const data = await response.json();
         console.log(data);
 
@@ -348,7 +376,7 @@ async function handleClickOnLike() {
     if (postData.value.reaction === "Dislike") {
         await removeReaction();
     }
-    
+
     await like();
 }
 
@@ -360,13 +388,7 @@ async function handleClickOnDislike() {
     if (postData.value.reaction === "Like") {
         await removeReaction();
     }
-    
+
     await dislike();
 }
 </script>
-
-<style scoped>
-.hover {
-    opacity: 0.8;
-}
-</style>

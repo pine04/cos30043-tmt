@@ -1,5 +1,9 @@
 <template>
-    <v-app-bar v-if="isAuthenticated" elevation="0" :class="{'bg-blue': true, 'px-8': !xs, 'px-4': xs}">
+    <v-app-bar
+        v-if="isAuthenticated"
+        elevation="0"
+        :class="{ 'bg-blue': true, 'px-8': !xs, 'px-4': xs }"
+    >
         <v-text-field
             v-if="!xs"
             v-model="searchQuery"
@@ -14,7 +18,13 @@
             bg-color="white"
         ></v-text-field>
 
-        <div :class="{'d-flex align-center': true, 'ga-4 pl-8 ml-auto': !xs, 'w-100 justify-space-between': xs}">
+        <div
+            :class="{
+                'd-flex align-center': true,
+                'ga-4 pl-8 ml-auto': !xs,
+                'w-100 justify-space-between': xs
+            }"
+        >
             <v-btn icon to="/">
                 <v-icon icon="mdi-home-outline" size="large"></v-icon>
             </v-btn>
@@ -38,25 +48,35 @@
             </v-btn>
         </div>
     </v-app-bar>
-        
-    <v-navigation-drawer v-if="isAuthenticated" location="right" :model-value="!mobile || drawer" :permanent="!mobile" @update:model-value="(e) => drawer = e">
-        <div v-if="friends.length === 0" class="d-flex flex-column justify-center align-center h-100 text-center px-8">
+
+    <v-navigation-drawer
+        v-if="isAuthenticated"
+        location="right"
+        :model-value="!mobile || drawer"
+        :permanent="!mobile"
+        @update:model-value="(e) => (drawer = e)"
+    >
+        <div
+            v-if="friends.length === 0"
+            class="d-flex flex-column justify-center align-center h-100 text-center px-8"
+        >
             <v-icon icon="mdi-account-remove" size="96"></v-icon>
             <p>You don't have any friends yet.</p>
         </div>
-        
+
         <v-list v-else>
             <v-list-item v-for="friend in friends" :to="`/profile/${friend.username}`">
                 <template v-slot:prepend>
-                    <v-avatar :image="friend.profilePicture || 'default_avatar.jpg'" size="small"></v-avatar>
+                    <v-avatar
+                        :image="friend.profilePicture || 'default_avatar.jpg'"
+                        size="small"
+                    ></v-avatar>
                 </template>
 
                 <v-list-item-title>
                     {{ friend.displayName }}
                 </v-list-item-title>
-                <v-list-item-subtitle>
-                    @{{ friend.username }}
-                </v-list-item-subtitle>
+                <v-list-item-subtitle> @{{ friend.username }} </v-list-item-subtitle>
             </v-list-item>
         </v-list>
     </v-navigation-drawer>

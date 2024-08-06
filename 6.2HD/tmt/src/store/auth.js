@@ -92,7 +92,7 @@ export const useAuthStore = defineStore("auth", () => {
         try {
             const response = await fetch("/api/logout", { method: "POST" });
             const data = await response.json();
-    
+
             if (response.status === 200) {
                 clearAuthenticationState();
             }
@@ -106,11 +106,15 @@ export const useAuthStore = defineStore("auth", () => {
         }
     }
 
-    return { 
-        isAuthenticated, 
-        setAuthenticationState, 
-        getInitialAuthState, 
-        currentUsername, register, login, logout };
+    return {
+        isAuthenticated,
+        setAuthenticationState,
+        getInitialAuthState,
+        currentUsername,
+        register,
+        login,
+        logout
+    };
 });
 
 function dateToISOString(date) {

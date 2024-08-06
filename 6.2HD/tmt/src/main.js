@@ -14,17 +14,19 @@ import router from "./router";
 
 const app = createApp(App);
 
-// app.directive("blur", {
-//     mounted: (el) => {
-//         const input = el.querySelector(".v-field__field input");
-//         input.onfocus = (ev) => {
-//             console.log("Focused");
-//             ev.target.blur(); 
-//         }
+app.directive("hover", {
+    mounted: (el) => {
+        el.style.transition = "opacity 0.2s ease-in-out";
 
-//         input.onblur = () => console.log("blurring...");
-//     }
-// });
+        el.addEventListener("mouseover", () => {
+            el.style.opacity = "0.8";
+        });
+
+        el.addEventListener("mouseout", () => {
+            el.style.opacity = "1.0";
+        });
+    }
+});
 
 const vuetify = createVuetify({
     components: {

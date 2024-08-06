@@ -3,22 +3,24 @@
         Nothing to see here.
     </div>
 
-    <v-infinite-scroll @load="load" ref="loader">
+    <v-infinite-scroll @load="load" ref="loader" v-show="posts.length > 0">
         <template v-for="post in posts">
             <Post :postUri="post" @delete="() => handleDeletedPost(post)"></Post>
             <v-divider class="my-4" opacity="0.4"></v-divider>
         </template>
 
         <template v-slot:empty>
-            <p v-if="posts.length > 0" class="text-center text-h5 font-weight-medium my-8">That's all!</p>
+            <p v-if="posts.length > 0" class="text-center text-h5 font-weight-medium my-8">
+                That's all!
+            </p>
         </template>
     </v-infinite-scroll>
 </template>
 
 <script setup>
-import { ref, defineProps, watchEffect } from 'vue';
-import { useAuthStore } from '@/store/auth';
-import Post from './Post.vue';
+import { ref, defineProps, watchEffect } from "vue";
+import { useAuthStore } from "@/store/auth";
+import Post from "./Post.vue";
 
 const props = defineProps(["source"]);
 const { setAuthenticationState } = useAuthStore();
@@ -78,8 +80,7 @@ async function load({ done }) {
 
 function handleDeletedPost(deletedPost) {
     console.log(deletedPost + " has been deleted.");
-    posts.value = posts.value.filter(post => post !== deletedPost);
+    posts.value = posts.value.filter((post) => post !== deletedPost);
     console.log(posts.value);
 }
 </script>
-  

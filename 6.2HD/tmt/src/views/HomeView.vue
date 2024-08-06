@@ -8,7 +8,6 @@ const { currentUsername } = storeToRefs(useAuthStore());
 </script>
 
 <template>
-
     <v-main>
         <v-container>
             <PostUploadForm></PostUploadForm>
