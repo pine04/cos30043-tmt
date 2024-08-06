@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `PostMedia` (
     `Order` INT NOT NULL,
 
     FOREIGN KEY (`PostID`) REFERENCES `Post` (`PostID`)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -43,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `PostReaction` (
     PRIMARY KEY (`PostID`, `ReactorID`),
 
     FOREIGN KEY (`PostID`) REFERENCES `Post` (`PostID`)
+        ON DELETE CASCADE
         ON UPDATE CASCADE,
 
     FOREIGN KEY (`ReactorID`) REFERENCES `User` (`UserID`)

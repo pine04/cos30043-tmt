@@ -5,7 +5,7 @@ async function getNewsFeed(username, pageNumber = 1) {
     try {
         const sql = `
             SELECT * FROM \`Post\`
-            LEFT JOIN (SELECT * FROM \`Friendship\` WHERE \`UserA\` = ? OR \`UserB\` = ?) AS \`MyFriends\`
+            LEFT JOIN (SELECT * FROM \`Friendship\` WHERE \`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)) AS \`MyFriends\`
             ON \`Post\`.\`UserID\` = \`MyFriends\`.\`UserA\` OR \`Post\`.\`UserID\` = \`MyFriends\`.\`UserB\`
             WHERE \`UserID\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR ((\`UserA\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?) OR \`UserB\` = (SELECT \`UserID\` FROM \`User\` WHERE \`Username\` = ?)) AND \`Status\` = "Accepted")
             ORDER BY \`TimePosted\` DESC

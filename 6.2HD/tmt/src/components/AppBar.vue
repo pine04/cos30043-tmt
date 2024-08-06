@@ -38,7 +38,7 @@
             </v-btn>
 
             <v-btn to="/my-profile" icon>
-                <v-avatar image="default_avatar.jpg" size="small"></v-avatar>
+                <v-avatar image="/public/default_avatar.jpg" size="small"></v-avatar>
             </v-btn>
 
             <LogoutButton></LogoutButton>

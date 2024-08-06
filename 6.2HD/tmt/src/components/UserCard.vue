@@ -1,8 +1,10 @@
 <template>
     <v-card variant="flat">
-        <v-card-item :prepend-avatar="user.profilePicture || 'default_avatar.jpg'">
+        <v-card-item :prepend-avatar="user.profilePicture || '/public/default_avatar.jpg'">
             <v-card-title>
-                {{ user.displayName }}
+                <RouterLink :to="`/profile/${user.username}`" style="text-decoration: none; color: black">
+                    {{ user.displayName }}
+                </RouterLink>
             </v-card-title>
             <v-card-subtitle> @{{ user.username }} </v-card-subtitle>
 
@@ -64,6 +66,7 @@ import { defineProps, toRef } from "vue";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "@/store/auth";
 import dateFormat from "dateformat";
+import { RouterLink } from "vue-router";
 
 const { currentUsername } = storeToRefs(useAuthStore());
 

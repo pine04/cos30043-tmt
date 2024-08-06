@@ -3,7 +3,7 @@
         <v-card-title>
             <v-list-item>
                 <template v-slot:prepend>
-                    <v-avatar image="default_avatar.jpg"></v-avatar>
+                    <v-avatar image="/public/default_avatar.jpg"></v-avatar>
                 </template>
 
                 <v-list-item-title>
@@ -33,6 +33,8 @@
                         <v-card>
                             <v-card-title>Edit post</v-card-title>
 
+                            <v-alert v-if="editError" type="error" variant="tonal" :text="editError" class="my-5"></v-alert>
+
                             <v-card-text>
                                 <v-textarea
                                     v-model="editedPostText"
@@ -58,6 +60,8 @@
                     <v-dialog v-model="deleteDialog" max-width="400">
                         <v-card>
                             <v-card-title>Delete post</v-card-title>
+
+                            <v-alert v-if="deleteError" type="error" variant="tonal" :text="deleteError" class="my-5"></v-alert>
 
                             <v-card-text>
                                 Do you want to delete this post? This action cannot be undone.
@@ -98,6 +102,7 @@
                                 :aspect-ratio="layout[mediaThumbnails.length][index]['aspectRatio']"
                                 cover
                                 v-hover
+                                v-bind="activatorProps"
                             >
                                 <v-overlay
                                     v-if="index === 3"
@@ -234,6 +239,8 @@ const layout = {
 const mediaDialog = ref(false);
 const editDialog = ref(false);
 const deleteDialog = ref(false);
+const editError = ref("");
+const deleteError = ref("");
 
 function openEditDialog() {
     editDialog.value = true;
@@ -262,7 +269,10 @@ async function handleEdit() {
 
         if (response.status === 200) {
             postData.value.post.textContent = editedPostText.value;
+            editError.value = "";
             exitEditDialog();
+        } else {
+            editError.value = data.message;
         }
     } catch (error) {
         console.log(error);
@@ -288,6 +298,8 @@ async function handleDelete() {
         if (response.status === 200) {
             exitDeleteDialog();
             emit("delete");
+        } else {
+            deleteError.value = data.message;
         }
     } catch (error) {
         console.log(error);

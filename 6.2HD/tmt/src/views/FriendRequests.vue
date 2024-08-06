@@ -10,7 +10,11 @@
                 variant="tonal"
             ></v-alert>
 
-            <UserCard v-for="user in sentRequests" :user="user"></UserCard>
+            <UserCard 
+                v-for="user in sentRequests" 
+                :user="user"
+                @cancel-request="() => removeSentRequest(user.username)"
+            ></UserCard>
 
             <v-divider></v-divider>
 
@@ -23,7 +27,12 @@
                 variant="tonal"
             ></v-alert>
 
-            <UserCard v-for="user in receivedRequests" :user="user"></UserCard>
+            <UserCard
+                v-for="user in receivedRequests" 
+                :user="user"
+                @accept-request="() => removeReceivedRequest(user.username)"
+                @decline-request="() => removeReceivedRequest(user.username)"
+            ></UserCard>
         </v-container>
     </v-main>
 </template>
@@ -48,6 +57,14 @@ watchEffect(() => {
         sentRequests.value = [];
     }
 });
+
+function removeSentRequest(username) {
+    sentRequests.value = sentRequests.value.filter(user => user.username !== username);
+}
+
+function removeReceivedRequest(username) {
+    receivedRequests.value = receivedRequests.value.filter(user => user.username !== username);
+}
 
 async function getReceivedRequests(username) {
     try {
