@@ -1,6 +1,6 @@
 <template>
     <v-card variant="flat">
-        <v-card-item :prepend-avatar="user.profilePicture || '/public/default_avatar.jpg'">
+        <v-card-item :prepend-avatar="user.profilePicture || '/default_avatar.jpg'">
             <v-card-title>
                 <RouterLink :to="`/profile/${user.username}`" style="text-decoration: none; color: black">
                     {{ user.displayName }}

@@ -36,7 +36,7 @@ onMounted(async () => {
                 <v-col cols="12" md="3">
                     <div v-if="profile !== null" :class="{ 'px-8': $vuetify.display.smAndDown }">
                         <v-avatar
-                            image="/public/default_avatar.jpg"
+                            image="/default_avatar.jpg"
                             size="96"
                             class="mx-auto d-block"
                         ></v-avatar>

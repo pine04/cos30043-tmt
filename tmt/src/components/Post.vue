@@ -3,7 +3,7 @@
         <v-card-title>
             <v-list-item>
                 <template v-slot:prepend>
-                    <v-avatar image="/public/default_avatar.jpg"></v-avatar>
+                    <v-avatar image="/default_avatar.jpg"></v-avatar>
                 </template>
 
                 <v-list-item-title>

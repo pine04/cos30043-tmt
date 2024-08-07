@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
@@ -20,6 +21,7 @@ app.use(cors({
 app.use(morgan("dev"));
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../../tmt/dist")));
 app.use(
     session({
         secret: "textmetomorrow", // probably put in env file :)
@@ -35,7 +37,10 @@ app.use(
 );
 
 app.use("/api", authRouter, profileRouter, postsRouter);
-app.use("*", defaultMiddleware);
+app.use("*", (req, res) => {
+    console.log("yay")
+    res.sendFile(path.resolve(__dirname, "../../tmt/dist/index.html"));
+});
 app.use(handleError);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}...`));
