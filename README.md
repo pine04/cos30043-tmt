@@ -1,5 +1,33 @@
 # COS30043 - 6.2 D HD - Custom Web Application by Ta Quang Tung - 104222196
 
+## Technologies used
+
+Vue, Vuetify, Express.js, MySQL, MinIO
+
+## Demo video and screenshots
+
+The project demonstration video is available on this link: https://drive.google.com/file/d/1fwD5oRpayYjYvdiZ317yO3ANsXRXXwjs/view?usp=sharing
+
+### The project login screen
+
+![Login screen](https://github.com/user-attachments/assets/2db58931-3a76-41a9-8d42-539b4f276ef9)
+
+### Add post
+
+![Add post](https://github.com/user-attachments/assets/20862a73-4a6e-4344-beac-b41fbadd0ec5)
+
+### Find friends
+
+![Find friends](https://github.com/user-attachments/assets/0d9ef102-f70b-4d14-9c6c-6e9764b561fc)
+
+### View profile
+
+![View profile](https://github.com/user-attachments/assets/3b622d9c-cd4f-4b9e-973e-4fc5d7e6f345)
+
+### News feed
+
+![News feed](https://github.com/user-attachments/assets/482346d5-b650-469b-8cd2-9198ed6597d1)
+
 ## Setup instructions
 
 To run this project on your local machine, please follow these steps:
